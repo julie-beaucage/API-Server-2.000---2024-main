@@ -166,9 +166,57 @@ function showAbout() {
     $("#aboutContainer").show();
 }
 
-//////////////////////////// profile rendering /////////////////////////////////////////////////////////////
+//////////////////////////// USER rendering /////////////////////////////////////////////////////////////
 
+async function renderUsers(queryString) {
+    /*let endOfData = false;
+    addWaitingGif();
+    let response = await Posts_API.Get(queryString);
+    if (!Posts_API.error) {
+        currentETag = response.ETag;
+        let Posts = response.data;
+        if (Posts.length > 0) {
+            Posts.forEach(Post => {
+                postsPanel.itemsPanel.append(renderPost(Post));
+            });
+        } else
+            endOfData = true;
+        linefeeds_to_Html_br(".postText");
+        highlightKeywords();
+        attach_Posts_UI_Events_Callback();
+    } else {
+        showError(Posts_API.currentHttpError);
+    }
+    removeWaitingGif();
+    return endOfData;*/
+}
+function renderUser(user, loggedUser) {
+    /*let date = convertToFrenchDate(UTC_To_Local(post.Date));
+    let crudIcon =
+        `
+        <span class="editCmd cmdIconSmall fa fa-pencil" postId="${post.Id}" title="Modifier nouvelle"></span>
+        <span class="deleteCmd cmdIconSmall fa fa-trash" postId="${post.Id}" title="Effacer nouvelle"></span>
+        `;
 
+    return $(`
+        <div class="post" id="${post.Id}">
+            <div class="postHeader">
+                ${post.Category}
+                ${crudIcon}
+            </div>
+            <div class="postTitle"> ${post.Title} </div>
+            <img class="postImage" src='${post.Image}'/>
+            <div class="postDate"> ${date} </div>
+            <div postId="${post.Id}" class="postTextContainer hideExtra">
+                <div class="postText" >${post.Text}</div>
+            </div>
+            <div class="postfooter">
+                <span postId="${post.Id}" class="moreText cmdIconXSmall fa fa-angle-double-down" title="Afficher la suite"></span>
+                <span postId="${post.Id}" class="lessText cmdIconXSmall fa fa-angle-double-up" title="Réduire..."></span>
+            </div>         
+        </div>
+    `);*/
+}
 //////////////////////////// Posts rendering /////////////////////////////////////////////////////////////
 
 function start_Periodic_Refresh() {
@@ -498,25 +546,40 @@ function renderCreateProfil(){
 
             </fieldset>
             <fieldset>
-            <label class="form-label">Image </label>
-            <legend> Avatar </legend>
-            <div class='imageUploaderContainer'>
-                <div class='imageUploader' 
-                     newImage='${create}' 
-                     controlId='Image' 
-                     imageSrc='${User.Avatar}' 
-                     waitingImage="Loading_icon.gif">
+                <legend> Avatar </legend>
+                <div class='imageUploaderContainer'>
+                    <div class='imageUploader' 
+                        newImage='${create}' 
+                        controlId='Image' 
+                        imageSrc='${User.Avatar}' 
+                        waitingImage="Loading_icon.gif">
+                    </div>
                 </div>
-            </div>
             </fieldset>
-            <div id="keepDateControl">
-                <input type="checkbox" name="keepDate" id="keepDate" class="checkbox" checked>
-                <label for="keepDate"> Conserver la date de création </label>
-            </div>
             <input type="submit" value="Enregistrer" id="saveUser" class="btn btn-primary displayNone">
             <input type="button" value="Annuler" id="cancel" class="btn btn-secondary">
         </form>
     `);
+    initImageUploaders();
+    initFormValidation(); 
+    $("#commit").click(function () {
+        $("#commit").off();
+        return $('#saveUser').trigger("click");
+    });
+    $('#createProfilForm').on("submit", async function (event) {
+        event.preventDefault();
+        let user = getFormData($("#createProfilForm"));
+        user = await Posts_API.Save(post, create);
+        if (!Posts_API.error) {
+            //await showPosts();
+            //postsPanel.scrollToElem(post.Id);
+        }
+        else
+            showError("Une erreur est survenue! ", Posts_API.currentHttpError);
+    });
+    $('#cancel').on("click", async function () {
+        //await showPosts();
+    });
     
 }
 
