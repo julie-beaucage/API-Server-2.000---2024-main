@@ -309,6 +309,12 @@ function updateDropDownMenu() {
     let selectClass = selectedCategory === "" ? "fa-check" : "fa-fw";
     DDMenu.empty();
     DDMenu.append($(`
+        <div class="dropdown-item menuItemLayout" id="login">
+            <i class="menuIcon fa fa-fw mx-2"></i> Connexion
+        </div>
+        `));
+    DDMenu.append($(`<div class="dropdown-divider"></div>`));
+    DDMenu.append($(`
         <div class="dropdown-item menuItemLayout" id="allCatCmd">
             <i class="menuIcon fa ${selectClass} mx-2"></i> Toutes les catégories
         </div>
@@ -340,6 +346,9 @@ function updateDropDownMenu() {
         selectedCategory = $(this).text().trim();
         await showPosts(true);
         updateDropDownMenu();
+    });
+    $('#login').on("click", async function () {
+        
     });
 }
 function attach_Posts_UI_Events_Callback() {
