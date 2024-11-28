@@ -14,7 +14,7 @@ class Posts_API {
         this.currentStatus = xhr.status;
         this.error = true;
     }
-    static storeAccesToken(){
+    static storeAccessToken(){
         sessionStorage.setItem('access_Token');
     }
     static eraseAccesToken(){
@@ -23,8 +23,32 @@ class Posts_API {
     static retrieveAccesToken(){
         sessionStorage.getItem('access_Token');
     }
-    static modifyUserProfile(){
-        
+    static storeLoggedUser(user){
+      sessionStorage.setItem('user', JSON.stringify(user));
+    }
+    static retrieveLoggedUser(){
+        let user = JSON.parse(sessionStorage.getItem('user'));
+        return user;
+    }
+    static eraseLoggedUser(){
+       sessionStorage.removeItem('user');
+    }
+    static modifyUserProfile(profil){
+        this.initHttpState();
+        return new Promise(resolve => {
+            $.ajax({
+                url:this.serverHost() + "/Accounts/modify/" + this.modifyUserProfile.Id,
+                type:'PUT',
+                contentType:'application/json',
+                headers:this.getBearerAuthorizationToken(),
+                data:JSON.stringify(profil),
+                succes:(profile) =>{
+                    Posts_API.storeLoggedUser(profile);
+                    resolve(profile);
+                },
+                error: (xhr) => { Posts_API.setHttpErrorState(xhr); resolve(false); }
+            });
+        })  
     }
     static async HEAD() {
         Posts_API.initHttpState();
