@@ -33,12 +33,47 @@ class Posts_API {
     static eraseLoggedUser(){
        sessionStorage.removeItem('user');
     }
+
+    static registerUserProfile(profil){
+        this.initHttpState();
+        return new Promise(resolve => {
+            $.ajax({
+                url:this.serverHost() + "/Accounts/register/" + this.registerUserProfile.Id,
+                type:'POST',
+                contentType:'application/json',
+                headers:this.getBearerAuthorizationToken(),
+                data:JSON.stringify(profil),
+                succes:(profile) =>{
+                    Posts_API.storeLoggedUser(profile);
+                    resolve(profile);
+                },
+                error: (xhr) => { Posts_API.setHttpErrorState(xhr); resolve(false); }
+            });
+        })  
+    }
     static modifyUserProfile(profil){
         this.initHttpState();
         return new Promise(resolve => {
             $.ajax({
                 url:this.serverHost() + "/Accounts/modify/" + this.modifyUserProfile.Id,
                 type:'PUT',
+                contentType:'application/json',
+                headers:this.getBearerAuthorizationToken(),
+                data:JSON.stringify(profil),
+                succes:(profile) =>{
+                    Posts_API.storeLoggedUser(profile);
+                    resolve(profile);
+                },
+                error: (xhr) => { Posts_API.setHttpErrorState(xhr); resolve(false); }
+            });
+        })  
+    }
+    static verifyUserProfile(profil){
+        this.initHttpState();
+        return new Promise(resolve => {
+            $.ajax({
+                url:this.serverHost() + "/Accounts/verify/" + this.verifyUserProfile.Id,
+                type:'GET',
                 contentType:'application/json',
                 headers:this.getBearerAuthorizationToken(),
                 data:JSON.stringify(profil),
