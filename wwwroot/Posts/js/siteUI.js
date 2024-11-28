@@ -39,6 +39,7 @@ async function Init_UI() {
     start_Periodic_Refresh();
 }
 
+
 /////////////////////////// Search keywords UI //////////////////////////////////////////////////////////
 
 function installKeywordsOnkeyupEvent() {
@@ -161,7 +162,20 @@ function showAbout() {
     $("#aboutContainer").show();
 }
 
-//////////////////////////// Posts rendering /////////////////////////////////////////////////////////////
+//////////////////////////// profile rendering /////////////////////////////////////////////////////////////
+function renderCreateProfil(){
+    $("#viewTitle").text("Inscription");
+    $("#form").empty();
+    $("#form").append(`
+        <form class="form" id ="createProfilForm">
+        <fieldset>
+         <legend> Adress ce courreil </
+        </fieldset>
+
+
+    `);
+    
+}
 
 //////////////////////////// Posts rendering /////////////////////////////////////////////////////////////
 

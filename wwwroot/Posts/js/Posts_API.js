@@ -14,6 +14,18 @@ class Posts_API {
         this.currentStatus = xhr.status;
         this.error = true;
     }
+    static storeAccesToken(){
+        sessionStorage.setItem('access_Token');
+    }
+    static eraseAccesToken(){
+        sessionStorage.removeItem('access_Token');
+    }
+    static retrieveAccesToken(){
+        sessionStorage.getItem('access_Token');
+    }
+    static modifyUserProfile(){
+        
+    }
     static async HEAD() {
         Posts_API.initHttpState();
         return new Promise(resolve => {
