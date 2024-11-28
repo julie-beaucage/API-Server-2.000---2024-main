@@ -191,61 +191,36 @@ function renderVerify(){
        let verifyForm = getFormData($('#verifyForm'));
        event.preventDefault();
        verifyForm(verifyForm);
-    });
-    
+    });  
 }
-   $("#form").show();
+
+function renderLoginProfil(){
+    $("#viewTitle").text("Connexion");
     $("#form").empty();
     $("#form").append(`
-        <form class="form" id="postForm">
-            <input type="hidden" name="Id" value="${post.Id}"/>
-             <input type="hidden" name="Date" value="${post.Date}"/>
-            <label for="Category" class="form-label">Catégorie </label>
-            <input 
-                class="form-control"
-                name="Category"
-                id="Category"
-                placeholder="Catégorie"
+        <form class="form" id ="loginProfilForm">
+            <input type="email"
+                 class="form-control Email"
+                 name="Email"
+                 placeholder="Courriel"
+                 required
+                 RequireMessage="Veuillez entrer un courriel"
+                 InvalidMessage="Courriel introuvable"
+                 value="${user.Email}"/>
+            <input type="password"
+                class="form-control Password"
+                name="Password"
+                placeholder="Mot de passe"
                 required
-                value="${post.Category}"
-            />
-            <label for="Title" class="form-label">Titre </label>
-            <input 
-                class="form-control"
-                name="Title" 
-                id="Title" 
-                placeholder="Titre"
-                required
-                RequireMessage="Veuillez entrer un titre"
-                InvalidMessage="Le titre comporte un caractère illégal"
-                value="${post.Title}"
-            />
-            <label for="Url" class="form-label">Texte</label>
-             <textarea class="form-control" 
-                          name="Text" 
-                          id="Text"
-                          placeholder="Texte" 
-                          rows="9"
-                          required 
-                          RequireMessage = 'Veuillez entrer une Description'>${post.Text}</textarea>
-
-            <label class="form-label">Image </label>
-            <div class='imageUploaderContainer'>
-                <div class='imageUploader' 
-                     newImage='${create}' 
-                     controlId='Image' 
-                     imageSrc='${post.Image}' 
-                     waitingImage="Loading_icon.gif">
-                </div>
-            </div>
-            <div id="keepDateControl">
-                <input type="checkbox" name="keepDate" id="keepDate" class="checkbox" checked>
-                <label for="keepDate"> Conserver la date de création </label>
-            </div>
-            <input type="submit" value="Enregistrer" id="savePost" class="btn btn-primary displayNone">
+                RequireMessage="Veuillez entrer un mot de passe"
+                value="${user.password}"/>
+            <br/>
+            <input type="submit" name ="submit" value="Entrer" id="savePost" class="btn btn-primary displayNone">
+            <hr>
+            <input type="submit" name ="submit" value="Nouveau compte" id="savePost" class="btn btn-primary displayNone">
         </form>
     `);
-    if (create) $("#keepDateControl").hide();
+}
 
 function renderCreateProfil(){
     $("#viewTitle").text("Inscription");
@@ -266,6 +241,59 @@ function renderCreateProfil(){
     `);
     
 }
+
+$("#form").show();
+$("#form").empty();
+$("#form").append(`
+    <form class="form" id="postForm">
+        <input type="hidden" name="Id" value="${post.Id}"/>
+         <input type="hidden" name="Date" value="${post.Date}"/>
+        <label for="Category" class="form-label">Catégorie </label>
+        <input 
+            class="form-control"
+            name="Category"
+            id="Category"
+            placeholder="Catégorie"
+            required
+            value="${post.Category}"
+        />
+        <label for="Title" class="form-label">Titre </label>
+        <input 
+            class="form-control"
+            name="Title" 
+            id="Title" 
+            placeholder="Titre"
+            required
+            RequireMessage="Veuillez entrer un titre"
+            InvalidMessage="Le titre comporte un caractère illégal"
+            value="${post.Title}"
+        />
+        <label for="Url" class="form-label">Texte</label>
+         <textarea class="form-control" 
+                      name="Text" 
+                      id="Text"
+                      placeholder="Texte" 
+                      rows="9"
+                      required 
+                      RequireMessage = 'Veuillez entrer une Description'>${post.Text}</textarea>
+
+        <label class="form-label">Image </label>
+        <div class='imageUploaderContainer'>
+            <div class='imageUploader' 
+                 newImage='${create}' 
+                 controlId='Image' 
+                 imageSrc='${post.Image}' 
+                 waitingImage="Loading_icon.gif">
+            </div>
+        </div>
+        <div id="keepDateControl">
+            <input type="checkbox" name="keepDate" id="keepDate" class="checkbox" checked>
+            <label for="keepDate"> Conserver la date de création </label>
+        </div>
+        <input type="submit" value="Enregistrer" id="savePost" class="btn btn-primary displayNone">
+    </form>
+`);
+if (create) $("#keepDateControl").hide();
 
 //////////////////////////// Posts rendering /////////////////////////////////////////////////////////////
 
