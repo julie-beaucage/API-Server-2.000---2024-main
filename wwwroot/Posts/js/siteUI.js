@@ -102,6 +102,10 @@ function intialView() {
     $('#form').empty();
     $('#aboutContainer').hide();
     $('#errorContainer').hide();
+    let loggedUser = Posts_API.retrieveLoggedUser();
+    if(loggedUser && loggedUser.isSuper){
+        timeout()
+    }
     showSearchIcon();
 }
 async function showPosts(reset = false) {
@@ -163,13 +167,99 @@ function showAbout() {
 }
 
 //////////////////////////// profile rendering /////////////////////////////////////////////////////////////
+function renderVerify(){
+    $("#form").empty();
+    $("#form").append(`
+        <fieldset>
+         <legend> Verifications< </legend>
+         <form class="form" id="verifyForm">
+           <p>Veuillez entrer le code de vérification que vous avez reçu par courriel </p>
+           <br><br>
+           <input type="text"
+                  name="Code"
+                  class="form-control"
+                  required
+                  RequireMessage="Veuillez entrer un titre"
+                  InvalidMessage="Le titre comporte un caractère illégal"
+                  placeholder = "Code de verification de couriel" />
+            <br/>
+            <input type="submit" name ="submit" value="Vérifier" id="savePost" class="btn btn-primary displayNone">
+        </fieldset>
+    `);
+    initFormValidation();
+    $('#verifyForm').on("submit", function(event){
+       let verifyForm = getFormData($('#verifyForm'));
+       event.preventDefault();
+       verifyForm(verifyForm);
+    });
+    
+}
+   $("#form").show();
+    $("#form").empty();
+    $("#form").append(`
+        <form class="form" id="postForm">
+            <input type="hidden" name="Id" value="${post.Id}"/>
+             <input type="hidden" name="Date" value="${post.Date}"/>
+            <label for="Category" class="form-label">Catégorie </label>
+            <input 
+                class="form-control"
+                name="Category"
+                id="Category"
+                placeholder="Catégorie"
+                required
+                value="${post.Category}"
+            />
+            <label for="Title" class="form-label">Titre </label>
+            <input 
+                class="form-control"
+                name="Title" 
+                id="Title" 
+                placeholder="Titre"
+                required
+                RequireMessage="Veuillez entrer un titre"
+                InvalidMessage="Le titre comporte un caractère illégal"
+                value="${post.Title}"
+            />
+            <label for="Url" class="form-label">Texte</label>
+             <textarea class="form-control" 
+                          name="Text" 
+                          id="Text"
+                          placeholder="Texte" 
+                          rows="9"
+                          required 
+                          RequireMessage = 'Veuillez entrer une Description'>${post.Text}</textarea>
+
+            <label class="form-label">Image </label>
+            <div class='imageUploaderContainer'>
+                <div class='imageUploader' 
+                     newImage='${create}' 
+                     controlId='Image' 
+                     imageSrc='${post.Image}' 
+                     waitingImage="Loading_icon.gif">
+                </div>
+            </div>
+            <div id="keepDateControl">
+                <input type="checkbox" name="keepDate" id="keepDate" class="checkbox" checked>
+                <label for="keepDate"> Conserver la date de création </label>
+            </div>
+            <input type="submit" value="Enregistrer" id="savePost" class="btn btn-primary displayNone">
+        </form>
+    `);
+    if (create) $("#keepDateControl").hide();
+
 function renderCreateProfil(){
     $("#viewTitle").text("Inscription");
     $("#form").empty();
     $("#form").append(`
         <form class="form" id ="createProfilForm">
         <fieldset>
-         <legend> Adress ce courreil </
+         <legend> Adress de courriel </legend>
+         <input type="email"
+                class="form-control Email"
+                name="Email"
+         >
+         
+
         </fieldset>
 
 
