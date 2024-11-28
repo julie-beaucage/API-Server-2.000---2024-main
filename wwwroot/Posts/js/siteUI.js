@@ -144,12 +144,12 @@ function showCreatePostForm() {
 }
 function showEditPostForm(id) {
     showForm();
-    $("#viewTitle").text("Modification de nouvelle");
+    $("#viewTitle").text("Modification");
     renderEditPostForm(id);
 }
 function showDeletePostForm(id) {
     showForm();
-    $("#viewTitle").text("Retrait de nouvelle");
+    $("#viewTitle").text("Retrait");
     renderDeletePostForm(id);
 }
 function showAbout() {
@@ -300,7 +300,7 @@ function attach_Posts_UI_Events_Callback() {
     $(".deleteCmd").on("click", function () {
         showDeletePostForm($(this).attr("postId"));
     });
-
+    $(".moreText").off();
     $(".moreText").click(function () {
         $(`.commentsPanel[postId=${$(this).attr("postId")}]`).show();
         $(`.lessText[postId=${$(this).attr("postId")}]`).show();
@@ -308,6 +308,7 @@ function attach_Posts_UI_Events_Callback() {
         $(`.postTextContainer[postId=${$(this).attr("postId")}]`).addClass('showExtra');
         $(`.postTextContainer[postId=${$(this).attr("postId")}]`).removeClass('hideExtra');
     })
+    $(".lessText").off();
     $(".lessText").click(function () {
         $(`.commentsPanel[postId=${$(this).attr("postId")}]`).hide();
         $(`.moreText[postId=${$(this).attr("postId")}]`).show();
