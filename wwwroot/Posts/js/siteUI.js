@@ -167,133 +167,7 @@ function showAbout() {
 }
 
 //////////////////////////// profile rendering /////////////////////////////////////////////////////////////
-function renderVerify(){
-    $("#form").empty();
-    $("#form").append(`
-        <fieldset>
-         <legend> Verifications< </legend>
-         <form class="form" id="verifyForm">
-           <p>Veuillez entrer le code de vérification que vous avez reçu par courriel </p>
-           <br><br>
-           <input type="text"
-                  name="Code"
-                  class="form-control"
-                  required
-                  RequireMessage="Veuillez entrer un titre"
-                  InvalidMessage="Le titre comporte un caractère illégal"
-                  placeholder = "Code de verification de couriel" />
-            <br/>
-            <input type="submit" name ="submit" value="Vérifier" id="savePost" class="btn btn-primary displayNone">
-        </fieldset>
-    `);
-    initFormValidation();
-    $('#verifyForm').on("submit", function(event){
-       let verifyForm = getFormData($('#verifyForm'));
-       event.preventDefault();
-       verifyForm(verifyForm);
-    });  
-}
 
-function renderLoginProfil(){
-    $("#viewTitle").text("Connexion");
-    $("#form").empty();
-    $("#form").append(`
-        <form class="form" id ="loginProfilForm">
-            <input type="email"
-                 class="form-control Email"
-                 name="Email"
-                 placeholder="Courriel"
-                 required
-                 RequireMessage="Veuillez entrer un courriel"
-                 InvalidMessage="Courriel introuvable"
-                 value="${user.Email}"/>
-            <input type="password"
-                class="form-control Password"
-                name="Password"
-                placeholder="Mot de passe"
-                required
-                RequireMessage="Veuillez entrer un mot de passe"
-                value="${user.password}"/>
-            <br/>
-            <input type="submit" name ="submit" value="Entrer" id="savePost" class="btn btn-primary displayNone">
-            <hr>
-            <input type="submit" name ="submit" value="Nouveau compte" id="savePost" class="btn btn-primary displayNone">
-        </form>
-    `);
-}
-
-function renderCreateProfil(){
-    $("#viewTitle").text("Inscription");
-    $("#form").empty();
-    $("#form").append(`
-        <form class="form" id ="createProfilForm">
-        <fieldset>
-         <legend> Adress de courriel </legend>
-         <input type="email"
-                class="form-control Email"
-                name="Email"
-         >
-         
-
-        </fieldset>
-
-
-    `);
-    
-}
-
-$("#form").show();
-$("#form").empty();
-$("#form").append(`
-    <form class="form" id="postForm">
-        <input type="hidden" name="Id" value="${post.Id}"/>
-         <input type="hidden" name="Date" value="${post.Date}"/>
-        <label for="Category" class="form-label">Catégorie </label>
-        <input 
-            class="form-control"
-            name="Category"
-            id="Category"
-            placeholder="Catégorie"
-            required
-            value="${post.Category}"
-        />
-        <label for="Title" class="form-label">Titre </label>
-        <input 
-            class="form-control"
-            name="Title" 
-            id="Title" 
-            placeholder="Titre"
-            required
-            RequireMessage="Veuillez entrer un titre"
-            InvalidMessage="Le titre comporte un caractère illégal"
-            value="${post.Title}"
-        />
-        <label for="Url" class="form-label">Texte</label>
-         <textarea class="form-control" 
-                      name="Text" 
-                      id="Text"
-                      placeholder="Texte" 
-                      rows="9"
-                      required 
-                      RequireMessage = 'Veuillez entrer une Description'>${post.Text}</textarea>
-
-        <label class="form-label">Image </label>
-        <div class='imageUploaderContainer'>
-            <div class='imageUploader' 
-                 newImage='${create}' 
-                 controlId='Image' 
-                 imageSrc='${post.Image}' 
-                 waitingImage="Loading_icon.gif">
-            </div>
-        </div>
-        <div id="keepDateControl">
-            <input type="checkbox" name="keepDate" id="keepDate" class="checkbox" checked>
-            <label for="keepDate"> Conserver la date de création </label>
-        </div>
-        <input type="submit" value="Enregistrer" id="savePost" class="btn btn-primary displayNone">
-    </form>
-`);
-if (create) $("#keepDateControl").hide();
 
 //////////////////////////// Posts rendering /////////////////////////////////////////////////////////////
 
@@ -509,6 +383,144 @@ function highlightKeywords() {
 }
 
 //////////////////////// Forms rendering /////////////////////////////////////////////////////////////////
+
+function newUser() {
+    let User = {};
+    User.Id = 0;
+    User.Name = "";
+    User.Email = "";
+    User.Password = "";
+    User.VerifyCode = "";
+    User.Avatar = "no-avatar.png";
+    return User;
+}
+
+function renderVerify(){
+    $("#form").empty();
+    $("#form").append(`
+        <fieldset>
+         <legend> Verifications< </legend>
+         <form class="form" id="verifyForm">
+           <p>Veuillez entrer le code de vérification que vous avez reçu par courriel </p>
+           <br><br>
+           <input type="text"
+                  name="Code"
+                  class="form-control"
+                  required
+                  RequireMessage="Veuillez entrer un titre"
+                  InvalidMessage="Le titre comporte un caractère illégal"
+                  placeholder = "Code de verification de couriel"
+                  value="${User.VerifyCode}" />
+            <br/>
+            <input type="submit" name ="submit" value="Vérifier" id="savePost" class="btn btn-primary displayNone">
+        </fieldset>
+    `);
+    initFormValidation();
+    $('#verifyForm').on("submit", function(event){
+       let verifyForm = getFormData($('#verifyForm'));
+       event.preventDefault();
+       verifyForm(verifyForm);
+    });  
+}
+
+function renderLoginProfil(){
+    $("#viewTitle").text("Connexion");
+    $("#form").empty();
+    $("#form").append(`
+        <form class="form" id ="loginProfilForm">
+            <input type="email"
+                 class="form-control Email"
+                 name="Email"
+                 placeholder="Courriel"
+                 required
+                 RequireMessage="Veuillez entrer un courriel"
+                 InvalidMessage="Courriel introuvable"
+                 value="${User.Email}"/>
+            <input type="password"
+                class="form-control Password"
+                name="Password"
+                placeholder="Mot de passe"
+                required
+                RequireMessage="Veuillez entrer un mot de passe"
+                value="${User.Password}"/>
+            <br/>
+            <input type="submit" name ="submit" value="Entrer" id="savePost" class="btn btn-primary displayNone">
+            <hr>
+            <input type="submit" name ="submit" value="Nouveau compte" id="savePost" class="btn btn-primary displayNone">
+        </form>
+    `);
+}
+
+function renderCreateProfil(){
+    $("#viewTitle").text("Inscription");
+    $("#form").empty();
+    $("#form").append(`
+        <form class="form" id ="createProfilForm">
+            <input type="hidden" name="Id" value="${User.Id}"/>
+            <input type="hidden" name="Created" value="${User.Created}"/>
+            <fieldset>
+                <legend> Adress de courriel </legend>
+                <input type="email"
+                    class="form-control Email"
+                    name="Email"
+                    placeholder="Courriel"
+                    value="${User.Email}"/>
+                />
+                <input type="email"
+                    class="form-control Email"
+                    name="Email"
+                    placeholder="Verification"
+                    value="${User.Email}"/>
+                />
+            </fieldset>
+            <fieldset>
+                <legend> Mot de passe </legend>
+                <input type="password"
+                    class="form-control Password"
+                    name="Password"
+                    placeholder="Mot de passe"
+                    value="${User.Email}"/>
+                />
+                <input type="email"
+                    class="form-control Pasword"
+                    name="Password
+                    placeholder="Vérification"
+                    value="${User.Email}"/>
+                />
+            </fieldset>
+            <fieldset>
+                <legend> Nom </legend>
+                <input type="password"
+                    class="form-control Pasword"
+                    name="Password
+                    placeholder="Vérification" 
+                    value="${User.Name}"/>
+
+            </fieldset>
+            <fieldset>
+            <label class="form-label">Image </label>
+            <legend> Avatar </legend>
+            <div class='imageUploaderContainer'>
+                <div class='imageUploader' 
+                     newImage='${create}' 
+                     controlId='Image' 
+                     imageSrc='${User.Avatar}' 
+                     waitingImage="Loading_icon.gif">
+                </div>
+            </div>
+            </fieldset>
+            <div id="keepDateControl">
+                <input type="checkbox" name="keepDate" id="keepDate" class="checkbox" checked>
+                <label for="keepDate"> Conserver la date de création </label>
+            </div>
+            <input type="submit" value="Enregistrer" id="saveUser" class="btn btn-primary displayNone">
+            <input type="button" value="Annuler" id="cancel" class="btn btn-secondary">
+        </form>
+    `);
+    
+}
+
+//////////////////////// Forms rendering (POST) /////////////////////////////////////////////////////////////////
 
 async function renderEditPostForm(id) {
     $('#commit').show();
