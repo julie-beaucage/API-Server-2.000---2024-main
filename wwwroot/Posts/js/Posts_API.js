@@ -48,6 +48,8 @@ class Posts_API {
     }
     static registerUserProfile(profil){
         this.initHttpState();
+        console.log("Initialisation de l'état HTTP:", this.currentHttpError, this.currentStatus, this.error);
+        console.log("Données de profil à enregistrer:", profil);
         return new Promise(resolve => {
             $.ajax({
                 url:this.serverHost() + "/accounts/register/",
@@ -55,11 +57,16 @@ class Posts_API {
                 contentType:'application/json',
                 data:JSON.stringify(profil),
                 success:(profile) =>{
+                    console.log("Profil enregistré avec succès:", profile);
                     Posts_API.storeLoggedUser(profile);
                     this.storeAccessToken(profile.accessToken);
                     resolve(profile);
                 },
-                error: (xhr) => { Posts_API.setHttpErrorState(xhr); resolve(false); }
+                error: (xhr) => { 
+                    Posts_API.setHttpErrorState(xhr);
+                    console.log("Erreur lors de l'enregistrement du profil:", xhr.status, xhr.statusText);
+                    console.log("Détails de la réponse:", xhr.responseJSON);
+                    resolve(false); }
             });
         })  
     }
@@ -98,23 +105,26 @@ class Posts_API {
             });
         })  
     }
-    static async login(credentials) {
-        this.initHttpState();
-        return new Promise(resolve => {
+    static login(user) {
+        this.initHttpState(); 
+        return new Promise((resolve) => {
             $.ajax({
-                url: this.serverHost() + "/Accounts/login",
+                url: "/token", 
                 type: "POST",
                 contentType: "application/json",
-                data: JSON.stringify(credentials),
+                data: JSON.stringify(user),
                 success: (response) => {
-                    this.storeAccessToken(response.accessToken);
-                    this.storeLoggedUser(response.user);
-                    resolve(response.user); 
+                    if (response.accessToken) {
+                        this.storeAccessToken(response.accessToken);
+                    }
+                    this.storeLoggedUser(response.user || {}); 
+                    resolve(response.user);
                 },
                 error: (xhr) => {
-                    this.setHttpErrorState(xhr);
-                    resolve(null); 
-                }
+                    this.setHttpErrorState(xhr); 
+                    console.error("Erreur lors de la tentative de connexion :", xhr.status, xhr.statusText);
+                    resolve(false); 
+                },
             });
         });
     }

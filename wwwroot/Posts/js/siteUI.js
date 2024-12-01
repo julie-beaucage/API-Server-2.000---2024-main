@@ -475,6 +475,7 @@ async function renderEditPostForm(id) {
 function newUser() {
     let User = {};
     User.Id = 0;
+    User.Created = Local_to_UTC(Date.now());
     User.Name = "";
     User.Email = "";
     User.Password = "";
@@ -539,18 +540,20 @@ function renderLoginProfil(){
             <input type="button" name ="button" value="Nouveau compte" id="createAccountButton" class="btn btn-primary ">
         </form>
     `);
-    $("#loginProfilForm").on("submit", function (e) {
-        e.preventDefault();
-        const email = $(".Email").val();
-        const password = $(".Password").val();
-        Posts_API.login(email, password).then((user) => {
-            if (user) {
-                alert("Connexion réussie !");
-                renderUserProfile(user);
-            } else {
-                alert(`Erreur de connexion : ${Posts_API.currentHttpError}`);
-            }
-        });
+    initFormValidation(); 
+    $("#commit").click(function () {
+        $("#commit").off();
+        return $('#loginButton').trigger("click");
+    });
+    $("#loginProfilForm").on("submit", async function (event)  {
+        event.preventDefault();
+        let user = getFormData($("#loginProfilForm"));
+        user = await Posts_API.login(user);
+        if (!Posts_API.error) {
+            await showPosts();
+        }
+        else
+            showError("Une erreur est survenue! ", Posts_API.currentHttpError);
     });
     $("#createAccountButton").on("click", function () {
         renderCreateProfile(); 
