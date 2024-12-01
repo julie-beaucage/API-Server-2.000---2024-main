@@ -242,3 +242,9 @@ legend {
     font-size: 1.2em;
     font-weight: bold;
 }
+.loggedUserItemMenuLayout{
+    display: flex;
+    align-items: center;
+    padding:0.5em;
+    font-weight: bold;
+}

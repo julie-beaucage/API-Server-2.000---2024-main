@@ -28,12 +28,27 @@ class Posts_API {
         sessionStorage.getItem('access_Token');
     }
     static storeLoggedUser(user){
+        console.log("Données à stocker :", user); // Log avant de stocker
       sessionStorage.setItem('user', JSON.stringify(user));
+      console.log("Données dans sessionStorage :", sessionStorage.getItem('user'));
     }
-    static retrieveLoggedUser(){
+    /*static retrieveLoggedUser(){
+        console.log("SessionStorage avant extraction :", sessionStorage.getItem('user')); 
         let user = JSON.parse(sessionStorage.getItem('user'));
+       // console.log("Utilisateur extrait :", user);
+        return user;
+    }*/
+    static retrieveLoggedUser() {
+        const storedUser = sessionStorage.getItem('user'); 
+        if (!storedUser) {
+            console.log("Aucun utilisateur trouvé dans sessionStorage.");
+            return null;
+        }
+        const user = JSON.parse(storedUser); 
+        console.log("Utilisateur extrait :", user);
         return user;
     }
+    
     static eraseLoggedUser(){
        sessionStorage.removeItem('user');
     }
@@ -114,11 +129,14 @@ class Posts_API {
                 contentType: "application/json",
                 data: JSON.stringify(user),
                 success: (response) => {
+                    console.log(response);
+                    console.log(user);
                     if (response.accessToken) {
                         this.storeAccessToken(response.accessToken);
                     }
-                    this.storeLoggedUser(response.user || {}); 
-                    resolve(response.user);
+                    console.log(response.User);
+                    this.storeLoggedUser(response.User); 
+                    resolve(response.User);
                 },
                 error: (xhr) => {
                     this.setHttpErrorState(xhr); 

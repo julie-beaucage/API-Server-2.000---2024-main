@@ -103,8 +103,10 @@ function intialView() {
     $('#aboutContainer').hide();
     $('#errorContainer').hide();
     let loggedUser = Posts_API.retrieveLoggedUser();
+    console.log(loggedUser);
     if(loggedUser && loggedUser.isSuper){
-        timeout()
+        timeout();
+        hide("#login");
     }
     showSearchIcon();
 }
@@ -311,13 +313,19 @@ async function compileCategories() {
 function updateDropDownMenu() {
     let DDMenu = $("#DDMenu");
     let selectClass = selectedCategory === "" ? "fa-check" : "fa-fw";
+    let loggedUser = Posts_API.retrieveLoggedUser();
     DDMenu.empty();
+    if (loggedUser) {
+        loggedUserMenu();
+        DDMenu.append($(`<div class="dropdown-divider"></div>`));
+    }else{
     DDMenu.append($(`
         <div class="dropdown-item menuItemLayout" id="login">
             <i class="menuIcon fa fa-fw mx-2"></i> Connexion
         </div>
         `));
-    DDMenu.append($(`<div class="dropdown-divider"></div>`));
+        DDMenu.append($(`<div class="dropdown-divider"></div>`));
+    }
     DDMenu.append($(`
         <div class="dropdown-item menuItemLayout" id="allCatCmd">
             <i class="menuIcon fa ${selectClass} mx-2"></i> Toutes les catégories
@@ -354,6 +362,57 @@ function updateDropDownMenu() {
     $('#login').on("click", async function () {
         showCreateProfileForm();
     });
+    $('#editProfileCmd').on('click', function () {
+        showEditProfileForm(); 
+    });
+
+    $('#logoutCmd').on('click', function () {
+        Posts_API.logout(); 
+        location.reload(); 
+    });
+}
+
+function loggedUserMenu(){
+    let loggedUser= Posts_API.retrieveLoggedUser();
+    if(loggedUser){
+        let connectedUser=(`
+            <span class="dropdown-item " id="editProfileMenuCmdFromAvatar">
+             <div class="loggedUserItemMenuLayout">
+                 <div class="" style="background-image: url('${loggedUser.Avatar}'); margin-right:0.7em; width: 40px; height: 40px; background-size: cover; border-radius: 50%;">
+                 </div>
+                 <span class="">${loggedUser.Name}</span>
+              </div>
+            </span>        
+        `);
+        $("#DDMenu").prepend(connectedUser); 
+        if(loggedUser.isAdmin){
+            $("#DDMenu").append($(`<div class="dropdown-divider"></div>`));
+            $("#DDMenu").append(`
+                <div class="dropdown-item menuItemLayout" id="gestionUser">
+                    <i class="menuIcon fas fa-user-cog mx-2"></i> Gestion des usagers
+                </div>
+            `);
+        }
+        $("#DDMenu").append($(`<div class="dropdown-divider"></div>`));
+        $("#DDMenu").append(`
+            <div class="dropdown-item menuItemLayout" id="editProfile">
+                <i class="menuIcon fas fa-user-edit mx-2"></i> Modifier votre profil
+            </div>
+        `);
+        $("#DDMenu").append(`
+            <div class="dropdown-item menuItemLayout" id="logoutCmd">
+                <i class="menuIcon fa fa-sign-out mx-2"></i> Déconnexion
+            </div>
+        `);
+        $('#editProfileMenuCmdFromAvatar').on("click", function () {
+            showEditProfileForm(); 
+        });
+
+        $('#logoutCmd').on("click", function () {
+            Posts_API.logout();
+            location.reload(); 
+        });
+    }
 }
 function attach_Posts_UI_Events_Callback() {
 
@@ -393,19 +452,6 @@ function addWaitingGif() {
 function removeWaitingGif() {
     clearTimeout(waiting);
     $("#waitingGif").remove();
-}
-function loggedUserMenu(){
-    let loggedUser= Posts_API.retrieveLoggedUser();
-    if(loggedUser){
-        let connectedUser=(`
-            <span class="dropdown-item " id="editProfileMenuCmdFromAvatar">
-            <div clss="loggedUserItemMenuLayout">
-            <div class=""
-                <i class="menuIcon fa ${selectClass} mx-2"></i> ${category}
-            </span>
-        `);
-
-    }
 }
 
 /////////////////////// Posts content manipulation ///////////////////////////////////////////////////////
@@ -457,7 +503,7 @@ function highlightKeywords() {
 }
 
 //////////////////////// Forms rendering /////////////////////////////////////////////////////////////////
-async function renderEditPostForm(id) {
+/*async function renderEditPostForm(id) {
     $('#commit').show();
     addWaitingGif();
     let response = await Posts_API.Get(id)
@@ -471,7 +517,7 @@ async function renderEditPostForm(id) {
         showError(Posts_API.currentHttpError);
     }
     removeWaitingGif();
-}
+}*/
 function newUser() {
     let User = {};
     User.Id = 0;
@@ -508,7 +554,7 @@ function renderVerify(){
     $('#verifyForm').on("submit", function(event){
        let verifyForm = getFormData($('#verifyForm'));
        event.preventDefault();
-       verifyForm(verifyForm);
+       verify(verifyForm.Code);
     });  
 }
 
@@ -550,6 +596,7 @@ function renderLoginProfil(){
         let user = getFormData($("#loginProfilForm"));
         user = await Posts_API.login(user);
         if (!Posts_API.error) {
+            loggedUserMenu();
             await showPosts();
         }
         else
