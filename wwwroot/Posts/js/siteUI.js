@@ -141,7 +141,11 @@ function showError(message, details = "") {
     $("#errorContainer").append($(`<div>${message}</div>`));
     $("#errorContainer").append($(`<div>${details}</div>`));
 }
-
+function showCreateProfileForm() {
+    showForm();
+    $("#viewTitle").text("Ajout de nouvelle");
+    renderLoginProfil();
+}
 function showCreatePostForm() {
     showForm();
     $("#viewTitle").text("Ajout de nouvelle");
@@ -348,7 +352,7 @@ function updateDropDownMenu() {
         updateDropDownMenu();
     });
     $('#login').on("click", async function () {
-        
+        showCreateProfileForm();
     });
 }
 function attach_Posts_UI_Events_Callback() {
@@ -389,6 +393,19 @@ function addWaitingGif() {
 function removeWaitingGif() {
     clearTimeout(waiting);
     $("#waitingGif").remove();
+}
+function loggedUserMenu(){
+    let loggedUser= Posts_API.retrieveLoggedUser();
+    if(loggedUser){
+        let connectedUser=(`
+            <span class="dropdown-item " id="editProfileMenuCmdFromAvatar">
+            <div clss="loggedUserItemMenuLayout">
+            <div class=""
+                <i class="menuIcon fa ${selectClass} mx-2"></i> ${category}
+            </span>
+        `);
+
+    }
 }
 
 /////////////////////// Posts content manipulation ///////////////////////////////////////////////////////
@@ -440,7 +457,21 @@ function highlightKeywords() {
 }
 
 //////////////////////// Forms rendering /////////////////////////////////////////////////////////////////
-
+async function renderEditPostForm(id) {
+    $('#commit').show();
+    addWaitingGif();
+    let response = await Posts_API.Get(id)
+    if (!Posts_API.error) {
+        let Post = response.data;
+        if (Post !== null)
+            renderPostForm(Post);
+        else
+            showError("Post introuvable!");
+    } else {
+        showError(Posts_API.currentHttpError);
+    }
+    removeWaitingGif();
+}
 function newUser() {
     let User = {};
     User.Id = 0;
@@ -481,6 +512,7 @@ function renderVerify(){
 }
 
 function renderLoginProfil(){
+    let User = Posts_API.retrieveLoggedUser() || { Email: '', Password: '' };
     $("#viewTitle").text("Connexion");
     $("#form").empty();
     $("#form").append(`
@@ -493,6 +525,7 @@ function renderLoginProfil(){
                  RequireMessage="Veuillez entrer un courriel"
                  InvalidMessage="Courriel introuvable"
                  value="${User.Email}"/>
+                 </br>
             <input type="password"
                 class="form-control Password"
                 name="Password"
@@ -501,14 +534,32 @@ function renderLoginProfil(){
                 RequireMessage="Veuillez entrer un mot de passe"
                 value="${User.Password}"/>
             <br/>
-            <input type="submit" name ="submit" value="Entrer" id="savePost" class="btn btn-primary displayNone">
+            <input type="submit" name ="submit" value="Entrer" id="loginButton" class="btn btn-primary" >
             <hr>
-            <input type="submit" name ="submit" value="Nouveau compte" id="savePost" class="btn btn-primary displayNone">
+            <input type="button" name ="button" value="Nouveau compte" id="createAccountButton" class="btn btn-primary ">
         </form>
     `);
+    $("#loginProfilForm").on("submit", function (e) {
+        e.preventDefault();
+        const email = $(".Email").val();
+        const password = $(".Password").val();
+        Posts_API.login(email, password).then((user) => {
+            if (user) {
+                alert("Connexion réussie !");
+                renderUserProfile(user);
+            } else {
+                alert(`Erreur de connexion : ${Posts_API.currentHttpError}`);
+            }
+        });
+    });
+    $("#createAccountButton").on("click", function () {
+        renderCreateProfile(); 
+    });
 }
 
-function renderCreateProfil(){
+function renderCreateProfile(User=null){
+    let create = User == null;
+    if (create) User = newUser();
     $("#viewTitle").text("Inscription");
     $("#form").empty();
     $("#form").append(`
@@ -521,13 +572,14 @@ function renderCreateProfil(){
                     class="form-control Email"
                     name="Email"
                     placeholder="Courriel"
-                    value="${User.Email}"/>
+                    value="${User.Email}"
                 />
+                </br>
                 <input type="email"
-                    class="form-control Email"
+                    class="form-control Email EmailVerification MatchedInput"
                     name="Email"
                     placeholder="Verification"
-                    value="${User.Email}"/>
+                    matchedInputId="Email"
                 />
             </fieldset>
             <fieldset>
@@ -536,23 +588,24 @@ function renderCreateProfil(){
                     class="form-control Password"
                     name="Password"
                     placeholder="Mot de passe"
-                    value="${User.Email}"/>
+                    value="${User.Password}"
                 />
-                <input type="email"
-                    class="form-control Pasword"
-                    name="Password
-                    placeholder="Vérification"
-                    value="${User.Email}"/>
+                </br>
+                <input type="password"
+                    class="form-control password"
+                    name="Password"
+                    placeholder="Verification"
+                    matchedInputId="Password"
                 />
             </fieldset>
             <fieldset>
                 <legend> Nom </legend>
-                <input type="password"
-                    class="form-control Pasword"
-                    name="Password
-                    placeholder="Vérification" 
-                    value="${User.Name}"/>
-
+                <input type="text"
+                    class="form-control text"
+                    name="Name"
+                    placeholder="Nom" 
+                    value="${User.Name}"
+                    />
             </fieldset>
             <fieldset>
                 <legend> Avatar </legend>
@@ -565,7 +618,7 @@ function renderCreateProfil(){
                     </div>
                 </div>
             </fieldset>
-            <input type="submit" value="Enregistrer" id="saveUser" class="btn btn-primary displayNone">
+            <input type="submit" value="Enregistrer" id="saveUser" class="btn btn-primary ">
             <input type="button" value="Annuler" id="cancel" class="btn btn-secondary">
         </form>
     `);
@@ -578,16 +631,16 @@ function renderCreateProfil(){
     $('#createProfilForm').on("submit", async function (event) {
         event.preventDefault();
         let user = getFormData($("#createProfilForm"));
-        user = await Posts_API.Save(post, create);
+        //user = await Posts_API.Save(post, create);
+        user = await Posts_API.registerUserProfile(user);
         if (!Posts_API.error) {
-            //await showPosts();
-            //postsPanel.scrollToElem(post.Id);
+            await showPosts();
         }
         else
             showError("Une erreur est survenue! ", Posts_API.currentHttpError);
     });
     $('#cancel').on("click", async function () {
-        //await showPosts();
+        await showPosts();
     });
     
 }

@@ -8,6 +8,7 @@ function createTimeoutPopup() {
                 </div>
                 <div onclick='closePopup(); ' class='close-btn fa fa-close'></div> 
             </div>
+           
         </div> 
     `);
 }
@@ -29,7 +30,9 @@ function noTimeout() {
     $(".popup").hide();
     clearTimeout(currentTimeouID);
 }
-function timeout() {
+function timeout(iddleTime = 0) {
+    if (iddleTime != 0)
+        maxStallingTime = iddleTime;
     startCountdown();
 }
 function startCountdown() {
@@ -59,4 +62,4 @@ function startCountdown() {
 function closePopup() {
     $(".popup").hide();
     startCountdown();
-}
+} 
