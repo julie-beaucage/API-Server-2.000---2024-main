@@ -161,7 +161,7 @@ function showError(message, details = "") {
     $("#errorContainer").append($(`<div>${message}</div>`));
     $("#errorContainer").append($(`<div>${details}</div>`));
 }
-function showCreateProfileForm() {
+function showLoginForm() {
     showForm();
     $("#viewTitle").text("Ajout de nouvelle");
     $('#commit').hide();
@@ -457,7 +457,7 @@ function updateDropDownMenu() {
         updateDropDownMenu();
     });
     $('#login').on("click", async function () {
-        showCreateProfileForm();
+        showLoginForm();
     });
     $('#editProfileCmd').on('click', function () {
         showEditProfileForm(); 
@@ -662,11 +662,14 @@ function renderVerify(){
     });  
 }
 
-function renderLoginProfil(){
+function renderLoginProfil(message=null){
     let User = Posts_API.retrieveLoggedUser() || { Email: '', Password: '' };
     $("#viewTitle").text("Connexion");
     $("#form").empty();
     $("#form").append(`
+        <div class="messageContainer">
+         
+        </div>
         <form class="form" id ="loginProfilForm">
             <input type="email"
                  class="form-control Email"
@@ -706,7 +709,6 @@ function renderLoginProfil(){
         }
         else{
             let errors = Posts_API.currentHttpError;
-
             console.log(Posts_API.currentHttpError);
             console.log(errors.includes("email"));
             if (errors.includes("email"))  {
@@ -732,7 +734,7 @@ function renderFormProfile(User=null){
     console.log(User);
     let create = User == null;
     if (create) User = newUser();
-   /* $("#viewTitle").text("Inscription");*/
+    $("#viewTitle").text("Inscription");
     $("#form").empty();
     $("#form").append(`
         <form class="form" id ="createProfilForm">
@@ -784,7 +786,7 @@ function renderFormProfile(User=null){
                 <div class='imageUploaderContainer'>
                     <div class='imageUploader' 
                         newImage='${create}' 
-                        controlId='Image' 
+                        controlId='Avatar' 
                         imageSrc='${User.Avatar}' 
                         waitingImage="Loading_icon.gif">
                     </div>
@@ -798,6 +800,8 @@ function renderFormProfile(User=null){
     `);
     initImageUploaders();
     initFormValidation(); 
+    const serviceUrl = `${Posts_API.serverHost()}/accounts/conflict`;
+    addConflictValidation(serviceUrl,"Email","#saveUser");
     $("#commit").click(function () {
         $("#commit").off();modifyUserProfile
         return $('#saveUser').trigger("click");
@@ -808,7 +812,9 @@ function renderFormProfile(User=null){
         //user = await Posts_API.Save(post, create);
         user = await Posts_API.registerUserProfile(user);
         if (!Posts_API.error) {
-            await showPosts();
+            let message="Votre compte a été créé. Veuillez prendre vos courriels pour récupérer votre code de vérification qui vous sera demandé lors de vottre prochaine connexion.";
+            renderLoginProfil(message);
+            
         }
         else
             showError("Une erreur est survenue! ", Posts_API.currentHttpError);

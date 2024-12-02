@@ -79,5 +79,18 @@
         },
         "VerifyCode": "verified",
         "Id": "f11ee960-aa82-11ef-b942-e7f097a2ee7a"
+    },
+    {
+        "Id": "898f7540-b0ee-11ef-9985-5bb62814f2ee",
+        "Created": 1733172403,
+        "Email": "201386196@edu.clg.qc.ca",
+        "Password": "password",
+        "Name": "juju",
+        "Avatar": "898f9c50-b0ee-11ef-9985-5bb62814f2ee.jpeg",
+        "VerifyCode": 328403,
+        "Authorizations": {
+            "readAccess": 1,
+            "writeAccess": 1
+        }
     }
 ]

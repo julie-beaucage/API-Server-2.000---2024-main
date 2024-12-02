@@ -7,7 +7,6 @@ let defaultRequireMessage = "Obligatoire";
 let defaultInvalidMessage = "Format invalide";
 let defaultCustomErrorMessage = "Champ invalide";
 function initFormValidation() {
-    console.log("init validiation");
     $(".Alpha").each(function () {
         $(this).attr("pattern", String.raw`^[a-zA-Z\- 'ààâäæáãåāèéêëęėēîïīįíìôōøõóòöœùûüūúÿçćčńñÀÂÄÆÁÃÅĀÈÉÊËĘĖĒÎÏĪĮÍÌÔŌØÕÓÒÖŒÙÛÜŪÚŸÇĆČŃÑ]*$`);
     });

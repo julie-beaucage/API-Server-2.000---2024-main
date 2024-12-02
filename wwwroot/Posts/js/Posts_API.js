@@ -38,12 +38,6 @@ class Posts_API {
       sessionStorage.setItem('user', JSON.stringify(user));
       //console.log("Données dans sessionStorage :", sessionStorage.getItem('user'));
     }
-    /*static retrieveLoggedUser(){
-        console.log("SessionStorage avant extraction :", sessionStorage.getItem('user')); 
-        let user = JSON.parse(sessionStorage.getItem('user'));
-       // console.log("Utilisateur extrait :", user);
-        return user;
-    }*/
     static retrieveLoggedUser() {
         const storedUser = sessionStorage.getItem('user'); 
         if (!storedUser) {
@@ -67,15 +61,17 @@ class Posts_API {
         console.log("Token d'accès récupéré :", token);
         return token ? { 'Authorization': `Bearer ${token}` } : {}; 
     }
+    /***LOG OUT */
     static logout() {
         this.eraseAccessToken();
         this.eraseLoggedUser();
         console.log("User logged out.");
     }
+    /*** Creation user */
     static registerUserProfile(profil){
         this.initHttpState();
        // console.log("Initialisation de l'état HTTP:", this.currentHttpError, this.currentStatus, this.error);
-       // console.log("Données de profil à enregistrer:", profil);
+        console.log("Données de profil à enregistrer:", profil);
         return new Promise(resolve => {
             $.ajax({
                 url:this.serverHost() + "/accounts/register/",
@@ -90,8 +86,8 @@ class Posts_API {
                 },
                 error: (xhr) => { 
                     Posts_API.setHttpErrorState(xhr);
-                    //console.log("Erreur lors de l'enregistrement du profil:", xhr.status, xhr.statusText);
-                   // console.log("Détails de la réponse:", xhr.responseJSON);
+                    console.log("Erreur lors de l'enregistrement du profil:", xhr.status, xhr.statusText);
+                    console.log("Détails de la réponse:", xhr.responseJSON);
                     resolve(false); }
             });
         })  
@@ -102,6 +98,23 @@ class Posts_API {
             $.ajax({
                 url:this.serverHost() + "/Accounts/modify/" + this.modifyUserProfile.Id,
                 type:'PUT',
+                contentType:'application/json',
+                headers:this.getBearerAuthorizationToken(),
+                data:JSON.stringify(profil),
+                success:(profile) =>{
+                    Posts_API.storeLoggedUser(profile);
+                    resolve(profile);
+                },
+                error: (xhr) => { Posts_API.setHttpErrorState(xhr); resolve(false); console.log(xhr);}
+            });
+        })  
+    }
+    static conflictUserProfile(profil){
+        this.initHttpState();
+        return new Promise(resolve => {
+            $.ajax({
+                url:this.serverHost() + "/Accounts/modify/" + this.modifyUserProfile.Id,
+                type:'GET',
                 contentType:'application/json',
                 headers:this.getBearerAuthorizationToken(),
                 data:JSON.stringify(profil),
