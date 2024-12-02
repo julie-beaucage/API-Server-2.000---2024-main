@@ -1,8 +1,10 @@
 
 class Posts_API {
-    static API_URL() { return "http://localhost:5000/api/posts" };
+    static Host_URL() { return "http://localhost:5000"; }
+    static API_URL() { return this.Host_URL() + "/api/posts" };
+    //static API_URL() { return "http://localhost:5000/api/posts" };
     static serverHost() { 
-        return "http://localhost:5000/api";
+        return "http://localhost:5000";
     }
     static initHttpState() {
         this.currentHttpError = "";
@@ -19,18 +21,22 @@ class Posts_API {
     }
     
     static storeAccessToken(token){
+        console.log("Stockage du jeton d'accès :", token);
         sessionStorage.setItem('access_Token',token);
     }
-    static eraseAccesToken(){
+    static eraseAccessToken(){
         sessionStorage.removeItem('access_Token');
     }
     static retrieveAccesToken(){
-        sessionStorage.getItem('access_Token');
+        //sessionStorage.getItem('access_Token');
+        const token = sessionStorage.getItem('access_Token');
+        console.log("retrieveAccesToken: Jeton récupéré :", token);  // Vérifiez la valeur du jeton
+        return token;
     }
     static storeLoggedUser(user){
-        console.log("Données à stocker :", user); // Log avant de stocker
+      //console.log("Données à stocker :", user); 
       sessionStorage.setItem('user', JSON.stringify(user));
-      console.log("Données dans sessionStorage :", sessionStorage.getItem('user'));
+      //console.log("Données dans sessionStorage :", sessionStorage.getItem('user'));
     }
     /*static retrieveLoggedUser(){
         console.log("SessionStorage avant extraction :", sessionStorage.getItem('user')); 
@@ -45,26 +51,31 @@ class Posts_API {
             return null;
         }
         const user = JSON.parse(storedUser); 
-        console.log("Utilisateur extrait :", user);
+       // console.log("Utilisateur extrait :", user);
         return user;
     }
     
     static eraseLoggedUser(){
+        console.log("eraselog");
        sessionStorage.removeItem('user');
+    }
+    static registerRequestURL(){
+
     }
     static getBearerAuthorizationToken() {
         const token = this.retrieveAccesToken(); 
+        console.log("Token d'accès récupéré :", token);
         return token ? { 'Authorization': `Bearer ${token}` } : {}; 
     }
     static logout() {
-        this.eraseAccesToken();
+        this.eraseAccessToken();
         this.eraseLoggedUser();
         console.log("User logged out.");
     }
     static registerUserProfile(profil){
         this.initHttpState();
-        console.log("Initialisation de l'état HTTP:", this.currentHttpError, this.currentStatus, this.error);
-        console.log("Données de profil à enregistrer:", profil);
+       // console.log("Initialisation de l'état HTTP:", this.currentHttpError, this.currentStatus, this.error);
+       // console.log("Données de profil à enregistrer:", profil);
         return new Promise(resolve => {
             $.ajax({
                 url:this.serverHost() + "/accounts/register/",
@@ -72,20 +83,19 @@ class Posts_API {
                 contentType:'application/json',
                 data:JSON.stringify(profil),
                 success:(profile) =>{
-                    console.log("Profil enregistré avec succès:", profile);
+                    //console.log("Profil enregistré avec succès:", profile);
                     Posts_API.storeLoggedUser(profile);
                     this.storeAccessToken(profile.accessToken);
                     resolve(profile);
                 },
                 error: (xhr) => { 
                     Posts_API.setHttpErrorState(xhr);
-                    console.log("Erreur lors de l'enregistrement du profil:", xhr.status, xhr.statusText);
-                    console.log("Détails de la réponse:", xhr.responseJSON);
+                    //console.log("Erreur lors de l'enregistrement du profil:", xhr.status, xhr.statusText);
+                   // console.log("Détails de la réponse:", xhr.responseJSON);
                     resolve(false); }
             });
         })  
     }
-
     static modifyUserProfile(profil){
         this.initHttpState();
         return new Promise(resolve => {
@@ -99,7 +109,7 @@ class Posts_API {
                     Posts_API.storeLoggedUser(profile);
                     resolve(profile);
                 },
-                error: (xhr) => { Posts_API.setHttpErrorState(xhr); resolve(false); }
+                error: (xhr) => { Posts_API.setHttpErrorState(xhr); resolve(false); console.log(xhr);}
             });
         })  
     }
@@ -116,7 +126,9 @@ class Posts_API {
                     Posts_API.storeLoggedUser(profile);
                     resolve(profile);
                 },
-                error: (xhr) => { Posts_API.setHttpErrorState(xhr); resolve(false); }
+                error: (xhr) => { 
+                    Posts_API.setHttpErrorState(xhr); 
+                    resolve(false); }
             });
         })  
     }
@@ -131,8 +143,8 @@ class Posts_API {
                 success: (response) => {
                     console.log(response);
                     console.log(user);
-                    if (response.accessToken) {
-                        this.storeAccessToken(response.accessToken);
+                    if (response.Access_token) {
+                        this.storeAccessToken(response.Access_token);
                     }
                     console.log(response.User);
                     this.storeLoggedUser(response.User); 
@@ -143,6 +155,26 @@ class Posts_API {
                     console.error("Erreur lors de la tentative de connexion :", xhr.status, xhr.statusText);
                     resolve(false); 
                 },
+            });
+        });
+    }
+    static async getUsers() {
+        this.initHttpState();
+        return new Promise(resolve => {
+            $.ajax({
+                url:this.serverHost() +  "/accounts", 
+                type: 'GET',
+                headers: this.getBearerAuthorizationToken(),
+                //data:JSON.stringify(profil),
+                success: (users) => {
+                    resolve(users); 
+                    console.log(users);
+                },
+                error: (xhr) => { 
+                    this.setHttpErrorState(xhr); 
+                    resolve(false); 
+                    console.log(xhr);
+                }
             });
         });
     }

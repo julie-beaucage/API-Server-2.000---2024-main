@@ -196,7 +196,6 @@ function renderContactForm(contact = null) {
                 InvalidMessage="Veuillez entrer un courriel valide"
                 value="${contact.Email}"
             />
-            <!-- nécessite le fichier javascript 'imageControl.js' -->
             <label class="form-label">Avatar </label>
             <div   class='imageUploader' 
                    newImage='${create}' 

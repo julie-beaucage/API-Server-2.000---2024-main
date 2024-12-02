@@ -35,7 +35,7 @@ export default class AccountsController extends Controller {
                         let newToken = TokenManager.create(user);
                         this.HttpContext.response.created(newToken);
                     } else {
-                        this.HttpContext.response.wrongPassword("Wrong password.");
+                        this.HttpContext.response.wrongPassword("Mot de passe incorrecte.");
                     }
                 } else
                     this.HttpContext.response.userNotFound("This user email is not found.");

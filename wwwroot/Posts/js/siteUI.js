@@ -2,7 +2,7 @@
 ////// 2024
 //////////////////////////////
 
-const periodicRefreshPeriod = 10;
+const periodicRefreshPeriod = 2;
 const waitingGifTrigger = 2000;
 const minKeywordLenth = 3;
 const keywordsOnchangeDelay = 500;
@@ -10,16 +10,20 @@ const keywordsOnchangeDelay = 500;
 let categories = [];
 let selectedCategory = "";
 let currentETag = "";
+let currentPostsCount = -1;
 let periodic_Refresh_paused = false;
 let postsPanel;
+let usersPanel;
 let itemLayout;
 let waiting = null;
 let showKeywords = false;
 let keywordsOnchangeTimger = null;
 
 Init_UI();
+
 async function Init_UI() {
     postsPanel = new PageManager('postsScrollPanel', 'postsPanel', 'postSample', renderPosts);
+    usersPanel = new PageManager('usersScrollPanel', 'usersPanel', 'userSample', renderUsers);
     $('#createPost').on("click", async function () {
         showCreatePostForm();
     });
@@ -33,7 +37,6 @@ async function Init_UI() {
         toogleShowKeywords();
         showPosts();
     });
-
     installKeywordsOnkeyupEvent();
     await showPosts();
     start_Periodic_Refresh();
@@ -103,10 +106,9 @@ function intialView() {
     $('#aboutContainer').hide();
     $('#errorContainer').hide();
     let loggedUser = Posts_API.retrieveLoggedUser();
-    console.log(loggedUser);
+    //console.log(loggedUser);
     if(loggedUser && loggedUser.isSuper){
         timeout();
-        hide("#login");
     }
     showSearchIcon();
 }
@@ -115,6 +117,14 @@ async function showPosts(reset = false) {
     $("#viewTitle").text("Fil de nouvelles");
     periodic_Refresh_paused = false;
     await postsPanel.show(reset);
+}
+async function showUsers(reset = false) {
+    hidePosts();
+    $('#abort').show();
+    $("#viewTitle").text("Gestions des usagers");
+    renderUsers();
+    //periodic_Refresh_paused = false;
+    await usersPanel.show(reset);
 }
 function hidePosts() {
     postsPanel.hide();
@@ -148,6 +158,11 @@ function showCreateProfileForm() {
     $("#viewTitle").text("Ajout de nouvelle");
     renderLoginProfil();
 }
+function showEditProfileForm(id){
+    showForm();
+    $("#viewTitle").text("Modification");
+    renderEditUserForm(id);
+}
 function showCreatePostForm() {
     showForm();
     $("#viewTitle").text("Ajout de nouvelle");
@@ -173,8 +188,48 @@ function showAbout() {
 }
 
 //////////////////////////// USER rendering /////////////////////////////////////////////////////////////
+async function renderUsers() {
+    addWaitingGif(); 
+    let User = await  Posts_API.retrieveLoggedUser();
+    try {
+        let users = await Posts_API.getUsers(); 
+        if (!Posts_API.error) {
+            if (users && users.length > 0) {
+                users.forEach(user => {
+                    //$('#usersPanel').append(renderUser(user)); 
+                    usersPanel.append(renderUser(user));
+                });
+            } else {
+                console.log("Aucun utilisateur trouvé.");
+            }
+        } else {
+            showError(Posts_API.currentHttpError);
+        }
+    } catch (error) {
+        console.error("Erreur lors de la récupération des utilisateurs :", error);
+        showError("Une erreur est survenue lors de la récupération des utilisateurs.");
+    } finally {
+        removeWaitingGif();
+    }
+}
 
-async function renderUsers(queryString) {
+async function renderUsers2(queryString) {
+    addWaitingGif(); 
+    let User = await Posts_API.retrieveLoggedUser();
+    let users = await Posts_API.getUsers();
+    if (!Posts_API.error) {
+        if (users && users.length > 0) {
+            users.forEach(user => {
+                $('#usersPanel').append(renderUser(user)); 
+                postsPanel.append(renderPost(Post));
+            });
+        } else {
+            console.log("Aucun utilisateur trouvé.");
+        }
+    } else {
+        showError(Posts_API.currentHttpError);
+    }
+    removeWaitingGif();
     /*let endOfData = false;
     addWaitingGif();
     let response = await Posts_API.Get(queryString);
@@ -197,6 +252,21 @@ async function renderUsers(queryString) {
     return endOfData;*/
 }
 function renderUser(user, loggedUser) {
+    let crudIcon =
+    `
+    <span class="editCmd cmdIconSmall fas fa-user-block" postId="${user.Id}" title="Modifier nouvelle"></span>
+    <span class="deleteCmd cmdIconSmall fa fa-trash" postId="${user.Id}" title="Effacer nouvelle"></span>
+    `;
+
+    return $(`
+        <div class="user" id="${user.Id}"> 
+            <div class="userHeader">
+                <strong>${user.Name}</strong> 
+            </div>
+            <div class="userEmail"> ${user.Email} </div> 
+            ${crudIcon}
+        </div>
+    `);
     /*let date = convertToFrenchDate(UTC_To_Local(post.Date));
     let crudIcon =
         `
@@ -226,12 +296,26 @@ function renderUser(user, loggedUser) {
 //////////////////////////// Posts rendering /////////////////////////////////////////////////////////////
 
 function start_Periodic_Refresh() {
+    $("#reloadPosts").addClass('white');
+    $("#reloadPosts").on('click', async function () {
+        $("#reloadPosts").addClass('white');
+        postsPanel.resetScrollPosition();
+        await showPosts();
+    })
     setInterval(async () => {
         if (!periodic_Refresh_paused) {
             let etag = await Posts_API.HEAD();
-            if (currentETag != etag) {
+            // the etag contain the number of model records in the following form
+            // xxx-etag
+            let postsCount = parseInt(etag.split("-")[0]);
+            if (currentETag != etag) {           
+                if (postsCount != currentPostsCount) {
+                    console.log("postsCount", postsCount)
+                    currentPostsCount = postsCount;
+                    $("#reloadPosts").removeClass('white');
+                } else
+                    await showPosts();
                 currentETag = etag;
-                await showPosts();
             }
         }
     },
@@ -251,10 +335,11 @@ async function renderPosts(queryString) {
     let response = await Posts_API.Get(queryString);
     if (!Posts_API.error) {
         currentETag = response.ETag;
+        currentPostsCount = parseInt(currentETag.split("-")[0]);
         let Posts = response.data;
         if (Posts.length > 0) {
             Posts.forEach(Post => {
-                postsPanel.itemsPanel.append(renderPost(Post));
+                postsPanel.append(renderPost(Post));
             });
         } else
             endOfData = true;
@@ -366,10 +451,10 @@ function updateDropDownMenu() {
         showEditProfileForm(); 
     });
 
-    $('#logoutCmd').on('click', function () {
+   /* $('#logoutCmd').on('click', function () {
         Posts_API.logout(); 
         location.reload(); 
-    });
+    });*/
 }
 
 function loggedUserMenu(){
@@ -404,11 +489,15 @@ function loggedUserMenu(){
                 <i class="menuIcon fa fa-sign-out mx-2"></i> Déconnexion
             </div>
         `);
-        $('#editProfileMenuCmdFromAvatar').on("click", function () {
-            showEditProfileForm(); 
+        $('#editProfile').on("click", function () {
+            showEditProfileForm(loggedUser); 
+        });
+        $('#gestionUser').on("click", function () {
+            showUsers();
         });
 
         $('#logoutCmd').on("click", function () {
+            console.log("click logout");
             Posts_API.logout();
             location.reload(); 
         });
@@ -453,6 +542,7 @@ function removeWaitingGif() {
     clearTimeout(waiting);
     $("#waitingGif").remove();
 }
+
 
 /////////////////////// Posts content manipulation ///////////////////////////////////////////////////////
 
@@ -503,21 +593,23 @@ function highlightKeywords() {
 }
 
 //////////////////////// Forms rendering /////////////////////////////////////////////////////////////////
-/*async function renderEditPostForm(id) {
+async function renderEditUserForm(id) {
     $('#commit').show();
     addWaitingGif();
-    let response = await Posts_API.Get(id)
+    //let response = await Posts_API.Get(id)
+    let response= await Posts_API.retrieveLoggedUser();
+    console.log(response);
     if (!Posts_API.error) {
-        let Post = response.data;
-        if (Post !== null)
-            renderPostForm(Post);
+       // let User = response.data;
+        if ( response !== null)
+            renderFormProfile( response);
         else
             showError("Post introuvable!");
     } else {
         showError(Posts_API.currentHttpError);
     }
     removeWaitingGif();
-}*/
+}
 function newUser() {
     let User = {};
     User.Id = 0;
@@ -571,7 +663,9 @@ function renderLoginProfil(){
                  required
                  RequireMessage="Veuillez entrer un courriel"
                  InvalidMessage="Courriel introuvable"
+                 CustomErrorMessage="Courriel introuvable"
                  value="${User.Email}"/>
+                 <div class="error-message" style="color: red; id="email-error" ></div>
                  </br>
             <input type="password"
                 class="form-control Password"
@@ -579,7 +673,9 @@ function renderLoginProfil(){
                 placeholder="Mot de passe"
                 required
                 RequireMessage="Veuillez entrer un mot de passe"
+                InvalidMessage="Mot de passe incorrect"
                 value="${User.Password}"/>
+            <div class="error-message"  style="color: red; id="password-error"></div>
             <br/>
             <input type="submit" name ="submit" value="Entrer" id="loginButton" class="btn btn-primary" >
             <hr>
@@ -587,30 +683,44 @@ function renderLoginProfil(){
         </form>
     `);
     initFormValidation(); 
-    $("#commit").click(function () {
-        $("#commit").off();
-        return $('#loginButton').trigger("click");
-    });
     $("#loginProfilForm").on("submit", async function (event)  {
         event.preventDefault();
+        $(".error-message").text("");
         let user = getFormData($("#loginProfilForm"));
         user = await Posts_API.login(user);
         if (!Posts_API.error) {
             loggedUserMenu();
             await showPosts();
         }
-        else
-            showError("Une erreur est survenue! ", Posts_API.currentHttpError);
+        else{
+            let errors = Posts_API.currentHttpError;
+
+            console.log(Posts_API.currentHttpError);
+            console.log(errors.includes("email"));
+            if (errors.includes("email"))  {
+                $("#email-error").text(errors);
+            }
+            if (errors.Password) {
+                $("#password-error").text(errors);
+            }
+            else{
+                //showError("Une erreur est survenue! ", Posts_API.currentHttpError);
+                console.log(Posts_API.currentHttpError);
+            }
+        }
+       // $("#errorMessage").text("Mot de passe incorrect").show();
+            //showError("Une erreur est survenue! ", Posts_API.currentHttpError);
     });
     $("#createAccountButton").on("click", function () {
-        renderCreateProfile(); 
+        renderFormProfile(); 
     });
 }
 
-function renderCreateProfile(User=null){
+function renderFormProfile(User=null){
+    console.log(User);
     let create = User == null;
     if (create) User = newUser();
-    $("#viewTitle").text("Inscription");
+   /* $("#viewTitle").text("Inscription");*/
     $("#form").empty();
     $("#form").append(`
         <form class="form" id ="createProfilForm">
@@ -675,7 +785,7 @@ function renderCreateProfile(User=null){
     initImageUploaders();
     initFormValidation(); 
     $("#commit").click(function () {
-        $("#commit").off();
+        $("#commit").off();modifyUserProfile
         return $('#saveUser').trigger("click");
     });
     $('#createProfilForm').on("submit", async function (event) {
