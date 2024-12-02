@@ -103,28 +103,62 @@
 
 <body>
     <div class="users">
-        <div class="user">
-            <div class="userHeader">
-                CATEGORIE
-                <span class="editCmd cmdIcon fa fa-pencil" editContactId="0" title="Modifier nouvelle"></span>
-                <span class="deleteCmd cmdIcon fa fa-trash" deleteContactId="0" title="Effacer nouvelle"></span>
+        <div class="user">        
+            <div class="userContainer noselect">
+                <div class="userLayout">
+                    <div class="avatar" style="background-image:url('${user.Avatar}')"></div>
+                    <div class="userInfo">
+                        <span class="contactName">${user.Name}</span>
+                        <a href="mailto:${user.Email}" class="contactEmail" target="_blank" >${user.Email}</a>
+                    </div>
+                </div>
+                <div class="userCommandPanel">
+                    <span class=" editCmd cmdIconSmall fa-stack fa-lg cmdIconSmall" postId="${user.Id}" title="Modifier nouvelle">
+                        <i class="fa fa-user fa-stack-1x"></i>
+                        <i class="fa fa-ban fa-stack-2x text-danger" style="color:red;"></i>
+                    </span>
+                    <span class="deleteCmd cmdIconSmall fa fa-trash" postId="${user.Id}" title="Effacer nouvelle"></span>
+                </div>
             </div>
-            <div class="postTitle ellipsis">
-                Titre de la nouvelle : Lorem ipsum dolor sit, amet consectetur adipisicing elit. Quisquam in sequi
-                tempora labore facilis impedit ad praesentium ipsum, nemo rem a cupiditate maiores autem corporis
-                sit
-                assumenda, voluptatibus eligendi voluptas.
+        </div>
+        <div class="user">        
+            <div class="userContainer noselect">
+                <div class="userLayout">
+                    <div class="avatar" style="background-image:url('${user.Avatar}')"></div>
+                    <div class="userInfo">
+                        <span class="contactName">${user.Name}</span>
+                        <a href="mailto:${user.Email}" class="contactEmail" target="_blank" >${user.Email}</a>
+                    </div>
+                </div>
+                <div class="userCommandPanel">
+                    <span class=" editCmd cmdIconSmall fa-stack fa-lg cmdIconSmall" postId="${user.Id}" title="Modifier nouvelle">
+                        <i class="fa fa-user fa-stack-1x"></i>
+                        <i class="fa fa-ban fa-stack-2x text-danger" style="color:red;"></i>
+                    </span>
+                    <span class="deleteCmd cmdIconSmall fa fa-trash" postId="${user.Id}" title="Effacer nouvelle"></span>
+                </div>
             </div>
-            <div class="postImage" style="background-image: url(https://picsum.photos/id/652/600/400);"> </div>
-            <div class="postDate">
-                Jeudi 7 novembre 2024 - 11:28:15
-            </div>
-            <div class="postfooter">
-                <span class="moreText cmdIcon fa fa-angle-double-down" title="Afficher la suite"></span>
-                <span class="lessText cmdIcon fa fa-angle-double-up" title="Réduire..."></span>
+        </div>
+        <div class="user">        
+            <div class="userContainer noselect">
+                <div class="userLayout">
+                    <div class="avatar" style="background-image:url('${user.Avatar}')"></div>
+                    <div class="userInfo">
+                        <span class="contactName">${user.Name}</span>
+                        <a href="mailto:${user.Email}" class="contactEmail" target="_blank" >${user.Email}</a>
+                    </div>
+                </div>
+                <div class="userCommandPanel">
+                    <span class=" editCmd cmdIconSmall fa-stack fa-lg cmdIconSmall" postId="${user.Id}" title="Modifier nouvelle">
+                        <i class="fa fa-user fa-stack-1x"></i>
+                        <i class="fa fa-ban fa-stack-2x text-danger" style="color:red;"></i>
+                    </span>
+                    <span class="deleteCmd cmdIconSmall fa fa-trash" postId="${user.Id}" title="Effacer nouvelle"></span>
+                </div>
             </div>
         </div>
     </div>
+
     <script src="https://code.jquery.com/jquery-3.6.1.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery.maskedinput/1.4.1/jquery.maskedinput.js"></script>
     <script src="https://ajax.googleapis.com/ajax/libs/jqueryui/1.12.1/jquery-ui.min.js"></script>

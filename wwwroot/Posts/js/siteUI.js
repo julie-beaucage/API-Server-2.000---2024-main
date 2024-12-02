@@ -23,7 +23,6 @@ Init_UI();
 
 async function Init_UI() {
     postsPanel = new PageManager('postsScrollPanel', 'postsPanel', 'postSample', renderPosts);
-    usersPanel = new PageManager('usersScrollPanel', 'usersPanel', 'userSample', renderUsers);
     $('#createPost').on("click", async function () {
         showCreatePostForm();
     });
@@ -120,21 +119,30 @@ async function showPosts(reset = false) {
 }
 async function showUsers(reset = false) {
     hidePosts();
+    usersPanel = new PageManager('usersScrollPanel', 'usersPanel', 'userSample', renderUsers);
     $('#abort').show();
     $("#viewTitle").text("Gestions des usagers");
     renderUsers();
     //periodic_Refresh_paused = false;
     await usersPanel.show(reset);
 }
+function hideUsers() {
+    usersPanel.hide();
+    $("#createUser").hide();
+    $('#menu').hide();
+    periodic_Refresh_paused = true;
+}
 function hidePosts() {
     postsPanel.hide();
     hideSearchIcon();
-    $("#createPost").hide();
+    $("#usersScrollPanel").hide();
     $('#menu').hide();
     periodic_Refresh_paused = true;
 }
 function showForm() {
     hidePosts();
+    //hideUsers();
+    $("#createPost").hide();
     $('#form').show();
     $('#commit').show();
     $('#abort').show();
@@ -156,6 +164,7 @@ function showError(message, details = "") {
 function showCreateProfileForm() {
     showForm();
     $("#viewTitle").text("Ajout de nouvelle");
+    $('#commit').hide();
     renderLoginProfil();
 }
 function showEditProfileForm(id){
@@ -188,7 +197,7 @@ function showAbout() {
 }
 
 //////////////////////////// USER rendering /////////////////////////////////////////////////////////////
-async function renderUsers() {
+async function renderUsers2() {
     addWaitingGif(); 
     let User = await  Posts_API.retrieveLoggedUser();
     try {
@@ -213,23 +222,25 @@ async function renderUsers() {
     }
 }
 
-async function renderUsers2(queryString) {
+async function renderUsers() {
+    let endOfData = false;
     addWaitingGif(); 
-    let User = await Posts_API.retrieveLoggedUser();
+    //let User = await Posts_API.retrieveLoggedUser();
     let users = await Posts_API.getUsers();
     if (!Posts_API.error) {
-        if (users && users.length > 0) {
+        console.log(users.length);
+        if (users.length > 0) {
             users.forEach(user => {
-                $('#usersPanel').append(renderUser(user)); 
-                postsPanel.append(renderPost(Post));
+                usersPanel.append(renderUser(user));
             });
         } else {
-            console.log("Aucun utilisateur trouvé.");
+            endOfData = true;
         }
     } else {
         showError(Posts_API.currentHttpError);
     }
     removeWaitingGif();
+    return endOfData;
     /*let endOfData = false;
     addWaitingGif();
     let response = await Posts_API.Get(queryString);
@@ -253,45 +264,28 @@ async function renderUsers2(queryString) {
 }
 function renderUser(user, loggedUser) {
     let crudIcon =
-    `
-    <span class="editCmd cmdIconSmall fas fa-user-block" postId="${user.Id}" title="Modifier nouvelle"></span>
+    ` <span class=" editCmd cmdIconSmall fa-stack fa-lg cmdIconSmall" postId="${user.Id}" title="Modifier nouvelle">
+        <i class="fa fa-user fa-stack-1x"></i>
+        <i class="fa fa-ban fa-stack-2x text-danger" style="color:red;"></i>
+    </span>
     <span class="deleteCmd cmdIconSmall fa fa-trash" postId="${user.Id}" title="Effacer nouvelle"></span>
     `;
-
     return $(`
         <div class="user" id="${user.Id}"> 
-            <div class="userHeader">
-                <strong>${user.Name}</strong> 
+            <div class="userContainer noselect">
+                <div class="userLayout">
+                    <div class="avatar" style="background-image:url('${user.Avatar}')"></div>
+                    <div class="userInfo">
+                        <span class="contactName">${user.Name}</span>
+                        <a href="mailto:${user.Email}" class="contactEmail" target="_blank" >${user.Email}</a>
+                    </div>
+                </div>
+                <div class="userCommandPanel">
+                    ${crudIcon}
+                </div>
             </div>
-            <div class="userEmail"> ${user.Email} </div> 
-            ${crudIcon}
         </div>
     `);
-    /*let date = convertToFrenchDate(UTC_To_Local(post.Date));
-    let crudIcon =
-        `
-        <span class="editCmd cmdIconSmall fa fa-pencil" postId="${post.Id}" title="Modifier nouvelle"></span>
-        <span class="deleteCmd cmdIconSmall fa fa-trash" postId="${post.Id}" title="Effacer nouvelle"></span>
-        `;
-
-    return $(`
-        <div class="post" id="${post.Id}">
-            <div class="postHeader">
-                ${post.Category}
-                ${crudIcon}
-            </div>
-            <div class="postTitle"> ${post.Title} </div>
-            <img class="postImage" src='${post.Image}'/>
-            <div class="postDate"> ${date} </div>
-            <div postId="${post.Id}" class="postTextContainer hideExtra">
-                <div class="postText" >${post.Text}</div>
-            </div>
-            <div class="postfooter">
-                <span postId="${post.Id}" class="moreText cmdIconXSmall fa fa-angle-double-down" title="Afficher la suite"></span>
-                <span postId="${post.Id}" class="lessText cmdIconXSmall fa fa-angle-double-up" title="Réduire..."></span>
-            </div>         
-        </div>
-    `);*/
 }
 //////////////////////////// Posts rendering /////////////////////////////////////////////////////////////
 
@@ -354,12 +348,30 @@ async function renderPosts(queryString) {
 }
 function renderPost(post, loggedUser) {
     let date = convertToFrenchDate(UTC_To_Local(post.Date));
-    let crudIcon =
-        `
+    let crudIcon="";
+    if(!loggedUser){
+
+    }else{
+    if(loggedUser.Id == post.OwnerId){
+        crudIcon =  `
         <span class="editCmd cmdIconSmall fa fa-pencil" postId="${post.Id}" title="Modifier nouvelle"></span>
         <span class="deleteCmd cmdIconSmall fa fa-trash" postId="${post.Id}" title="Effacer nouvelle"></span>
         `;
 
+    }else{
+        if(loggedUser.isAdmin){
+            crudIcon = `
+            <span>&nbsp</span>
+            <span class="deleteCmd cmdIconSmall fa fa-trash" postId="${post.Id}" title="Effacer nouvelle"></span>
+            `;
+        }else{
+            crudIcon = `
+            <span>&nbsp</span>
+            <span>&nbsp</span>
+            `;
+        }
+    }
+}
     return $(`
         <div class="post" id="${post.Id}">
             <div class="postHeader">
@@ -677,9 +689,9 @@ function renderLoginProfil(){
                 value="${User.Password}"/>
             <div class="error-message"  style="color: red; id="password-error"></div>
             <br/>
-            <input type="submit" name ="submit" value="Entrer" id="loginButton" class="btn btn-primary" >
+            <input type="submit" name ="submit" value="Entrer" id="loginButton" class="login_btn btn btn-primary" >
             <hr>
-            <input type="button" name ="button" value="Nouveau compte" id="createAccountButton" class="btn btn-primary ">
+            <input type="button" name ="button" value="Nouveau compte" id="createAccountButton" class="nouveau_btn btn btn-primary ">
         </form>
     `);
     initFormValidation(); 
@@ -780,6 +792,8 @@ function renderFormProfile(User=null){
             </fieldset>
             <input type="submit" value="Enregistrer" id="saveUser" class="btn btn-primary ">
             <input type="button" value="Annuler" id="cancel" class="btn btn-secondary">
+            <input type="button" name ="button" value="Effacer le compte" id="deleteAccountButton" class="btn btn-primary ">
+
         </form>
     `);
     initImageUploaders();
@@ -801,6 +815,9 @@ function renderFormProfile(User=null){
     });
     $('#cancel').on("click", async function () {
         await showPosts();
+    });
+    $("#deleteAccountButton").on("click", function () {
+        renderFormProfile(); 
     });
     
 }
