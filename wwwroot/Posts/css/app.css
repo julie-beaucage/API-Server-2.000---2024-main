@@ -248,3 +248,10 @@ legend {
     padding:0.5em;
     font-weight: bold;
 }
+
+.flex-row {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: center;
+}

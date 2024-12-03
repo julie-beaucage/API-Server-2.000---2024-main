@@ -384,7 +384,14 @@ function renderPost(post, loggedUser) {
         </div>
         <div class="postTitle"> ${post.Title} </div>
         <img class="postImage" src='${post.Image}'/>
-        <div class="postDate"> ${date} </div>
+        <div class="flex-row postInfo">
+            <div class="flex-row">
+                <div class="" style="background-image: url('${post.Author.Avatar}'); margin-right:0.7em; width: 40px; height: 40px; background-size: cover; border-radius: 50%;">
+                </div>
+                <b class="">${post.Author.Name}</b>
+            </div>
+            <div class="postDate"> ${date} </div>
+        </div>
         <div postId="${post.Id}" class="postTextContainer hideExtra">
             <div class="postText" >${post.Text}</div>
         </div>
