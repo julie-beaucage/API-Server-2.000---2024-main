@@ -3,7 +3,7 @@ class Posts_API {
     static Host_URL() { return "http://localhost:5000"; }
     static API_URL() { return this.Host_URL() + "/api/posts" };
     //static API_URL() { return "http://localhost:5000/api/posts" };
-    static serverHost() { 
+    static serverHost() {
         return "http://localhost:5000";
     }
     static initHttpState() {
@@ -21,22 +21,17 @@ class Posts_API {
     }
     
     static storeAccessToken(token){
-        console.log("Stockage du jeton d'accès :", token);
         sessionStorage.setItem('access_Token',token);
     }
     static eraseAccessToken(){
         sessionStorage.removeItem('access_Token');
     }
     static retrieveAccesToken(){
-        //sessionStorage.getItem('access_Token');
         const token = sessionStorage.getItem('access_Token');
-        console.log("retrieveAccesToken: Jeton récupéré :", token);  // Vérifiez la valeur du jeton
         return token;
     }
     static storeLoggedUser(user){
-      //console.log("Données à stocker :", user); 
       sessionStorage.setItem('user', JSON.stringify(user));
-      //console.log("Données dans sessionStorage :", sessionStorage.getItem('user'));
     }
     static retrieveLoggedUser() {
         const storedUser = sessionStorage.getItem('user'); 
@@ -45,33 +40,24 @@ class Posts_API {
             return null;
         }
         const user = JSON.parse(storedUser); 
-       // console.log("Utilisateur extrait :", user);
+
         return user;
     }
-    
     static eraseLoggedUser(){
-        console.log("eraselog");
        sessionStorage.removeItem('user');
-    }
-    static registerRequestURL(){
-
     }
     static getBearerAuthorizationToken() {
         const token = this.retrieveAccesToken(); 
-        console.log("Token d'accès récupéré :", token);
         return token ? { 'Authorization': `Bearer ${token}` } : {}; 
     }
     /***LOG OUT */
     static logout() {
         this.eraseAccessToken();
         this.eraseLoggedUser();
-        console.log("User logged out.");
     }
     /*** Creation user */
     static registerUserProfile(profil){
         this.initHttpState();
-       // console.log("Initialisation de l'état HTTP:", this.currentHttpError, this.currentStatus, this.error);
-        console.log("Données de profil à enregistrer:", profil);
         return new Promise(resolve => {
             $.ajax({
                 url:this.serverHost() + "/accounts/register/",
@@ -79,7 +65,6 @@ class Posts_API {
                 contentType:'application/json',
                 data:JSON.stringify(profil),
                 success:(profile) =>{
-                    //console.log("Profil enregistré avec succès:", profile);
                     Posts_API.storeLoggedUser(profile);
                     this.storeAccessToken(profile.accessToken);
                     resolve(profile);
@@ -154,12 +139,9 @@ class Posts_API {
                 contentType: "application/json",
                 data: JSON.stringify(user),
                 success: (response) => {
-                    console.log(response);
-                    console.log(user);
                     if (response.Access_token) {
                         this.storeAccessToken(response.Access_token);
                     }
-                    console.log(response.User);
                     this.storeLoggedUser(response.User); 
                     resolve(response.User);
                 },
@@ -181,7 +163,6 @@ class Posts_API {
                 //data:JSON.stringify(profil),
                 success: (users) => {
                     resolve(users); 
-                    console.log(users);
                 },
                 error: (xhr) => { 
                     this.setHttpErrorState(xhr); 
