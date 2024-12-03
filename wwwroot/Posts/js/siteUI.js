@@ -135,6 +135,7 @@ function hideUsers() {
 function hidePosts() {
     postsPanel.hide();
     hideSearchIcon();
+    $("#createPost").hide();
     $("#usersScrollPanel").hide();
     $('#menu').hide();
     periodic_Refresh_paused = true;
@@ -348,7 +349,10 @@ async function renderPosts(queryString) {
 }
 function renderPost(post, loggedUser) {
     let date = convertToFrenchDate(UTC_To_Local(post.Date));
-    let crudIcon="";
+    let crudIcon= `
+    <span class="editCmd cmdIconSmall fa fa-pencil" postId="${post.Id}" title="Modifier nouvelle"></span>
+    <span class="deleteCmd cmdIconSmall fa fa-trash" postId="${post.Id}" title="Effacer nouvelle"></span>
+    `;
     if(!loggedUser){
 
     }else{
@@ -373,23 +377,23 @@ function renderPost(post, loggedUser) {
     }
 }
     return $(`
-        <div class="post" id="${post.Id}">
-            <div class="postHeader">
-                ${post.Category}
-                ${crudIcon}
-            </div>
-            <div class="postTitle"> ${post.Title} </div>
-            <img class="postImage" src='${post.Image}'/>
-            <div class="postDate"> ${date} </div>
-            <div postId="${post.Id}" class="postTextContainer hideExtra">
-                <div class="postText" >${post.Text}</div>
-            </div>
-            <div class="postfooter">
-                <span postId="${post.Id}" class="moreText cmdIconXSmall fa fa-angle-double-down" title="Afficher la suite"></span>
-                <span postId="${post.Id}" class="lessText cmdIconXSmall fa fa-angle-double-up" title="Réduire..."></span>
-            </div>         
+    <div class="post" id="${post.Id}">
+        <div class="postHeader">
+            ${post.Category}
+            ${crudIcon}
         </div>
-    `);
+        <div class="postTitle"> ${post.Title} </div>
+        <img class="postImage" src='${post.Image}'/>
+        <div class="postDate"> ${date} </div>
+        <div postId="${post.Id}" class="postTextContainer hideExtra">
+            <div class="postText" >${post.Text}</div>
+        </div>
+        <div class="postfooter">
+            <span postId="${post.Id}" class="moreText cmdIconXSmall fa fa-angle-double-down" title="Afficher la suite"></span>
+            <span postId="${post.Id}" class="lessText cmdIconXSmall fa fa-angle-double-up" title="Réduire..."></span>
+        </div>         
+    </div>
+`);
 }
 async function compileCategories() {
     categories = [];
@@ -540,6 +544,7 @@ function attach_Posts_UI_Events_Callback() {
         $(`.commentsPanel[postId=${$(this).attr("postId")}]`).hide();
         $(`.moreText[postId=${$(this).attr("postId")}]`).show();
         $(this).hide();
+        postsPanel.scrollToElem($(this).attr("postId"));
         $(`.postTextContainer[postId=${$(this).attr("postId")}]`).addClass('hideExtra');
         $(`.postTextContainer[postId=${$(this).attr("postId")}]`).removeClass('showExtra');
     })
@@ -555,8 +560,8 @@ function removeWaitingGif() {
     $("#waitingGif").remove();
 }
 
-
 /////////////////////// Posts content manipulation ///////////////////////////////////////////////////////
+
 
 function linefeeds_to_Html_br(selector) {
     $.each($(selector), function () {
