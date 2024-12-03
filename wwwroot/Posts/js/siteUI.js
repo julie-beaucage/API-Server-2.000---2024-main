@@ -801,7 +801,7 @@ function renderFormProfile(User=null){
     initImageUploaders();
     initFormValidation(); 
     const serviceUrl = `${Posts_API.serverHost()}/accounts/conflict`;
-    addConflictValidation(serviceUrl,"Email","#saveUser");
+    addConflictValidation(serviceUrl,"Email","saveUser");
     $("#commit").click(function () {
         $("#commit").off();modifyUserProfile
         return $('#saveUser').trigger("click");
