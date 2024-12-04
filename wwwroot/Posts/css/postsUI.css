@@ -164,3 +164,7 @@
     overflow-y: auto;
     scrollbar-gutter: stable;
 }
+
+.postInfo {
+    margin: 4px 0;
+}
