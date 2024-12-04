@@ -172,6 +172,23 @@ class Posts_API {
             });
         });
     }
+    static blockUser(user){
+        this.initHttpState();
+        return new Promise(resolve => {
+            $.ajax({
+                url:this.serverHost() + "/Accounts/block/" + this.blockUser.Id,
+                type:'POST',
+                contentType:'application/json',
+                headers:this.getBearerAuthorizationToken(),
+                data:JSON.stringify(user),
+                success:(user) =>{
+                    Posts_API.storeLoggedUser(profile);
+                    resolve(profile);
+                },
+                error: (xhr) => { Posts_API.setHttpErrorState(xhr); resolve(false); console.log(xhr);}
+            });
+        })  
+    }
     static async HEAD() {
         Posts_API.initHttpState();
         return new Promise(resolve => {

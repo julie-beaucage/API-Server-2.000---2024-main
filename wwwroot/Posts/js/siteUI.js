@@ -104,6 +104,7 @@ function intialView() {
     $('#form').empty();
     $('#aboutContainer').hide();
     $('#errorContainer').hide();
+    $('#userManagerContainer').hide();
     let loggedUser = Posts_API.retrieveLoggedUser();
     //console.log(loggedUser);
     if(loggedUser && loggedUser.isSuper){
@@ -117,17 +118,18 @@ async function showPosts(reset = false) {
     periodic_Refresh_paused = false;
     await postsPanel.show(reset);
 }
-async function showUsers(reset = false) {
+function showUsers() {
     hidePosts();
-    usersPanel = new PageManager('usersScrollPanel', 'usersPanel', 'userSample', renderUsers);
+    $('#userManagerContainer').show();
+    renderUsers();
+    //usersPanel = new PageManager('usersScrollPanel', 'usersPanel', 'userSample', renderUsers);
     $('#abort').show();
     $("#viewTitle").text("Gestions des usagers");
-    renderUsers();
     //periodic_Refresh_paused = false;
-    await usersPanel.show(reset);
+    //await usersPanel.show(reset);
 }
 function hideUsers() {
-    usersPanel.hide();
+    $('#userManagerContainer').hide();
     $("#createUser").hide();
     $('#menu').hide();
     periodic_Refresh_paused = true;
@@ -265,11 +267,11 @@ async function renderUsers() {
 }
 function renderUser(user, loggedUser) {
     let crudIcon =
-    ` <span class=" editCmd cmdIconSmall fa-stack fa-lg cmdIconSmall" postId="${user.Id}" title="Modifier nouvelle">
+    ` <span id="blockUserCmd" class=" editCmd cmdIconSmall fa-stack fa-lg cmdIconSmall" postId="${user.Id}" title="Bloquer usager">
         <i class="fa fa-user fa-stack-1x"></i>
         <i class="fa fa-ban fa-stack-2x text-danger" style="color:red;"></i>
     </span>
-    <span class="deleteCmd cmdIconSmall fa fa-trash" postId="${user.Id}" title="Effacer nouvelle"></span>
+    <span id="deleteUserCmd" class="deleteCmd cmdIconSmall fa fa-trash" postId="${user.Id}" title="Effacer usager"></span>
     `;
     return $(`
         <div class="user" id="${user.Id}"> 
@@ -288,6 +290,13 @@ function renderUser(user, loggedUser) {
         </div>
     `);
 }
+function changeRoleUser(userId){
+    if(user.isAdmin){
+
+    }
+
+}
+
 //////////////////////////// Posts rendering /////////////////////////////////////////////////////////////
 
 function start_Periodic_Refresh() {
@@ -466,11 +475,6 @@ function updateDropDownMenu() {
     $('#editProfileCmd').on('click', function () {
         showEditProfileForm(); 
     });
-
-   /* $('#logoutCmd').on('click', function () {
-        Posts_API.logout(); 
-        location.reload(); 
-    });*/
 }
 
 function loggedUserMenu(){
@@ -626,6 +630,44 @@ async function renderEditUserForm(id) {
         showError(Posts_API.currentHttpError);
     }
     removeWaitingGif();
+}
+async function renderDeleteUserForm(id) {
+    let response = await Posts_API.Get(id)
+    if (!Posts_API.error) {
+        let post = response.data;
+        if (post !== null) {
+            $("#form").append(`
+                <div class="user" id="${user.Id}"> 
+                    <div class="userContainer noselect">
+                        <div class="userLayout">
+                            <div class="avatar" style="background-image:url('${user.Avatar}')"></div>
+                            <div class="userInfo">
+                                <span class="contactName">${user.Name}</span>
+                                <a href="mailto:${user.Email}" class="contactEmail" target="_blank" >${user.Email}</a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            `);
+            $('#commit').on("click", async function () {
+                await Posts_API.DeleteUser(post.Id);
+                if (!Posts_API.error) {
+                    await showPosts();
+                }
+                else {
+                    console.log(Posts_API.currentHttpError)
+                    showError("Une erreur est survenue!");
+                }
+            });
+            $('#cancel').on("click", async function () {
+                await showPosts();
+            });
+
+        } else {
+            showError("Post introuvable!");
+        }
+    } else
+        showError(Posts_API.currentHttpError);
 }
 function newUser() {
     let User = {};
@@ -805,12 +847,12 @@ function renderFormProfile(User=null){
     `);
     initImageUploaders();
     initFormValidation(); 
-    const serviceUrl = `${Posts_API.serverHost()}/accounts/conflict`;
-    addConflictValidation(serviceUrl,"Email","saveUser");
     $("#commit").click(function () {
         $("#commit").off();modifyUserProfile
         return $('#saveUser').trigger("click");
     });
+    const serviceUrl = `${Posts_API.serverHost()}/accounts/conflict`;
+    addConflictValidation(serviceUrl,"Email","saveUser");
     $('#createProfilForm').on("submit", async function (event) {
         event.preventDefault();
         let user = getFormData($("#createProfilForm"));
