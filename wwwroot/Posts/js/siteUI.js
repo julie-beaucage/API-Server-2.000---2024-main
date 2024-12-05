@@ -218,7 +218,7 @@ async function renderUsers() {
 }
 function renderUser(user, loggedUser) {
     let crudIcon =
-    ` <span id="blockUserCmd" class=" editCmd cmdIconSmall fa-stack fa-lg cmdIconSmall" postId="${user.Id}" title="Bloquer usager">
+    ` <span id="blockUserCmd" class=" blockUserCmd editCmd cmdIconSmall fa-stack fa-lg cmdIconSmall" postId="${user.Id}" title="Bloquer usager">
         <i class="fa fa-user fa-stack-1x"></i>
         <i class="fa fa-ban fa-stack-2x text-danger" style="color:red;"></i>
     </span>
@@ -245,6 +245,7 @@ function renderUser(user, loggedUser) {
     });
     $userElement.find(".blockUserCmd").on("click", async function () {
         //showDeleteUserForm(user);
+        console.log("block");
         Posts_API.blockUser(user.Id); 
     });
 
