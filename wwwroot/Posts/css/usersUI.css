@@ -8,6 +8,11 @@
     width: 100%;
     background-color: #0dcaf0;
 }
+.delete_user_btn {
+    width: 100%;
+    background-color: #f6c025;
+    border: none!important;
+}
 .users {
     margin: auto;
     max-width: 1200px;

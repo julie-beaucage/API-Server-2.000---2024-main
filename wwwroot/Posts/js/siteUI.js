@@ -241,8 +241,11 @@ function renderUser(user, loggedUser) {
         </div>
     `);
     $userElement.find(".deleteCmd").on("click", async function () {
-        let userId = $(this).attr("userId"); // Récupérer l'ID utilisateur
-        showDeleteUserForm(user); // Appeler la fonction pour afficher le formulaire de suppression
+        showDeleteUserForm(user); 
+    });
+    $userElement.find(".blockUserCmd").on("click", async function () {
+        //showDeleteUserForm(user);
+        Posts_API.blockUser(user.Id); 
     });
 
     return $userElement;
@@ -285,6 +288,7 @@ function start_Periodic_Refresh() {
 async function renderPosts(queryString) {
     let endOfData = false;
     queryString += "&sort=date,desc";
+    loggedUser = Posts_API.retrieveLoggedUser();
     compileCategories();
     if (selectedCategory != "") queryString += "&category=" + selectedCategory;
     if (showKeywords) {
@@ -300,7 +304,7 @@ async function renderPosts(queryString) {
         let Posts = response.data;
         if (Posts.length > 0) {
             Posts.forEach(Post => {
-                postsPanel.append(renderPost(Post));
+                postsPanel.append(renderPost(Post,loggedUser));
             });
         } else
             endOfData = true;
@@ -315,6 +319,7 @@ async function renderPosts(queryString) {
 }
 function renderPost(post, loggedUser) {
     let date = convertToFrenchDate(UTC_To_Local(post.Date));
+    console.log(loggedUser);
     let crudIcon= `
     <span class="editCmd cmdIconSmall fa fa-pencil" postId="${post.Id}" title="Modifier nouvelle"></span>
     <span class="deleteCmd cmdIconSmall fa fa-trash" postId="${post.Id}" title="Effacer nouvelle"></span>
@@ -326,6 +331,7 @@ function renderPost(post, loggedUser) {
         crudIcon =  `
         <span class="editCmd cmdIconSmall fa fa-pencil" postId="${post.Id}" title="Modifier nouvelle"></span>
         <span class="deleteCmd cmdIconSmall fa fa-trash" postId="${post.Id}" title="Effacer nouvelle"></span>
+        <span class="likeCmd cmdIconSmall fa fa-thumbs-up" postId="${post.Id}" title="Aimer la nouvelle"></span>
         `;
 
     }else{
@@ -804,9 +810,9 @@ function renderFormProfile(User=null){
                     </div>
                 </div>
             </fieldset>
-            <input type="submit" value="Enregistrer" id="saveUser" class="btn btn-primary ">
-            <input type="button" value="Annuler" id="cancel" class="btn btn-secondary">
-            <input type="button" name ="button" value="Effacer le compte" id="deleteAccountButton" class="btn btn-primary ">
+            <input type="submit" value="Enregistrer" id="saveUser" class="login_btn btn btn-primary ">
+            </br><br>
+            <input type="button" name ="button" value="Effacer le compte" id="deleteAccountButton" class="delete_user_btn btn btn-primary ">
 
         </form>
     `);
