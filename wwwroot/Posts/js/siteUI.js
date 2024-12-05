@@ -768,15 +768,16 @@ function renderFormProfile(User=null){
             <input type="hidden" name="Created" value="${User.Created}"/>
             <fieldset>
                 <legend> Adress de courriel </legend>
-                <input type="email"
+                <input id="Email" type="email"
                     class="form-control Email"
                     name="Email"
                     placeholder="Courriel"
                     value="${User.Email}"
+                    
                 />
                 </br>
                 <input type="email"
-                    class="form-control Email EmailVerification MatchedInput"
+                    class="form-control EmailVerification MatchedInput"
                     name="Email"
                     placeholder="Verification"
                     matchedInputId="Email"
@@ -788,7 +789,7 @@ function renderFormProfile(User=null){
                     class="form-control Password"
                     name="Password"
                     placeholder="Mot de passe"
-                    value="${User.Password}"
+                    value=""
                 />
                 </br>
                 <input type="password"
@@ -824,10 +825,18 @@ function renderFormProfile(User=null){
 
         </form>
     `);
+    if (create){
+        $("#deleteAccountButton").hide();
+        $("#saveUser").hide();
+    }
     initImageUploaders();
     initFormValidation(); 
+    $("#saveUser").click(function () {
+        Posts_API.modifyUserProfile(user);
+ 
+    });
     $("#commit").click(function () {
-        $("#commit").off();modifyUserProfile
+        $("#commit").off();
         return $('#saveUser').trigger("click");
     });
     const serviceUrl = `${Posts_API.serverHost()}/accounts/conflict`;
@@ -839,8 +848,7 @@ function renderFormProfile(User=null){
         user = await Posts_API.registerUserProfile(user);
         if (!Posts_API.error) {
             let message="Votre compte a été créé. Veuillez prendre vos courriels pour récupérer votre code de vérification qui vous sera demandé lors de vottre prochaine connexion.";
-            renderLoginProfil(message);
-            
+            renderLoginProfil(message); 
         }
         else
             showError("Une erreur est survenue! ", Posts_API.currentHttpError);
