@@ -122,11 +122,8 @@ function showUsers() {
     hidePosts();
     $('#userManagerContainer').show();
     renderUsers();
-    //usersPanel = new PageManager('usersScrollPanel', 'usersPanel', 'userSample', renderUsers);
     $('#abort').show();
     $("#viewTitle").text("Gestions des usagers");
-    //periodic_Refresh_paused = false;
-    //await usersPanel.show(reset);
 }
 function hideUsers() {
     $('#userManagerContainer').hide();
@@ -175,6 +172,11 @@ function showEditProfileForm(id){
     $("#viewTitle").text("Modification");
     renderEditUserForm(id);
 }
+function showDeleteUserForm(id) {
+    showForm();
+    $("#viewTitle").text("Retrait");
+    renderDeleteUserForm(id);
+}
 function showCreatePostForm() {
     showForm();
     $("#viewTitle").text("Ajout de nouvelle");
@@ -200,70 +202,19 @@ function showAbout() {
 }
 
 //////////////////////////// USER rendering /////////////////////////////////////////////////////////////
-async function renderUsers2() {
-    addWaitingGif(); 
-    let User = await  Posts_API.retrieveLoggedUser();
-    try {
-        let users = await Posts_API.getUsers(); 
-        if (!Posts_API.error) {
-            if (users && users.length > 0) {
-                users.forEach(user => {
-                    //$('#usersPanel').append(renderUser(user)); 
-                    usersPanel.append(renderUser(user));
-                });
-            } else {
-                console.log("Aucun utilisateur trouvé.");
-            }
-        } else {
-            showError(Posts_API.currentHttpError);
-        }
-    } catch (error) {
-        console.error("Erreur lors de la récupération des utilisateurs :", error);
-        showError("Une erreur est survenue lors de la récupération des utilisateurs.");
-    } finally {
-        removeWaitingGif();
-    }
-}
-
 async function renderUsers() {
-    let endOfData = false;
-    addWaitingGif(); 
-    //let User = await Posts_API.retrieveLoggedUser();
     let users = await Posts_API.getUsers();
     if (!Posts_API.error) {
         console.log(users.length);
         if (users.length > 0) {
             users.forEach(user => {
-                usersPanel.append(renderUser(user));
+                $('#userManagerContainer').append(renderUser(user));
             });
-        } else {
-            endOfData = true;
-        }
+        } 
     } else {
         showError(Posts_API.currentHttpError);
     }
-    removeWaitingGif();
-    return endOfData;
-    /*let endOfData = false;
-    addWaitingGif();
-    let response = await Posts_API.Get(queryString);
-    if (!Posts_API.error) {
-        currentETag = response.ETag;
-        let Posts = response.data;
-        if (Posts.length > 0) {
-            Posts.forEach(Post => {
-                postsPanel.itemsPanel.append(renderPost(Post));
-            });
-        } else
-            endOfData = true;
-        linefeeds_to_Html_br(".postText");
-        highlightKeywords();
-        attach_Posts_UI_Events_Callback();
-    } else {
-        showError(Posts_API.currentHttpError);
-    }
-    removeWaitingGif();
-    return endOfData;*/
+
 }
 function renderUser(user, loggedUser) {
     let crudIcon =
@@ -273,7 +224,7 @@ function renderUser(user, loggedUser) {
     </span>
     <span id="deleteUserCmd" class="deleteCmd cmdIconSmall fa fa-trash" postId="${user.Id}" title="Effacer usager"></span>
     `;
-    return $(`
+    let $userElement =  $(`
         <div class="user" id="${user.Id}"> 
             <div class="userContainer noselect">
                 <div class="userLayout">
@@ -289,6 +240,12 @@ function renderUser(user, loggedUser) {
             </div>
         </div>
     `);
+    $userElement.find(".deleteCmd").on("click", async function () {
+        let userId = $(this).attr("userId"); // Récupérer l'ID utilisateur
+        showDeleteUserForm(user); // Appeler la fonction pour afficher le formulaire de suppression
+    });
+
+    return $userElement;
 }
 function changeRoleUser(userId){
     if(user.isAdmin){
@@ -638,11 +595,12 @@ async function renderEditUserForm(id) {
     }
     removeWaitingGif();
 }
-async function renderDeleteUserForm(id) {
-    let response = await Posts_API.Get(id)
-    if (!Posts_API.error) {
-        let post = response.data;
-        if (post !== null) {
+async function renderDeleteUserForm(user) {
+    //let response = await Posts_API.getUsers(id)
+    //console.log(response);
+    //if (!Posts_API.error) {
+        //let user = response.data;
+        if (user !== null) {
             $("#form").append(`
                 <div class="user" id="${user.Id}"> 
                     <div class="userContainer noselect">
@@ -657,9 +615,9 @@ async function renderDeleteUserForm(id) {
                 </div>
             `);
             $('#commit').on("click", async function () {
-                await Posts_API.DeleteUser(post.Id);
+                await Posts_API.removeUser(user.Id);
                 if (!Posts_API.error) {
-                    await showPosts();
+                    await showUsers();
                 }
                 else {
                     console.log(Posts_API.currentHttpError)
@@ -667,14 +625,14 @@ async function renderDeleteUserForm(id) {
                 }
             });
             $('#cancel').on("click", async function () {
-                await showPosts();
+                await showUsers();
             });
 
         } else {
             showError("Post introuvable!");
         }
-    } else
-        showError(Posts_API.currentHttpError);
+   // } else
+        //showError(Posts_API.currentHttpError);
 }
 function newUser() {
     let User = {};

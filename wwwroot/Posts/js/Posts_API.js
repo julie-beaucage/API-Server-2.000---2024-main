@@ -153,7 +153,53 @@ class Posts_API {
             });
         });
     }
-    static async getUsers() {
+    static async getUsers(id = null) {
+        this.initHttpState();
+        return new Promise(resolve => {
+            console.log(id)
+            const url = this.serverHost() + "/accounts" + (id ? `/${id}` : "");
+            console.log(url);
+            $.ajax({
+                url: url,
+                type: 'GET',
+                headers: this.getBearerAuthorizationToken(), 
+                success: (data) => {
+                    resolve(data); 
+                },
+                error: (xhr) => {
+                    this.setHttpErrorState(xhr); 
+                    console.error(`Erreur lors de la récupération de l'utilisateur avec ID ${id}:`, xhr);
+                    resolve(null);
+                }
+            });
+        });
+    }
+    static async removeUser(id) {
+        this.initHttpState(); 
+        return new Promise((resolve) => {
+            if (!id) {
+                console.error("Aucun ID spécifié pour la suppression.");
+                resolve(false);
+                return;
+            }
+            const url = this.serverHost() + `/accounts/${id}`;
+            $.ajax({
+                url: url,
+                type: 'DELETE',
+                headers: this.getBearerAuthorizationToken(), 
+                success: () => {
+                    console.log(`Utilisateur avec ID ${id} supprimé.`);
+                    resolve(true);
+                },
+                error: (xhr) => {
+                    this.setHttpErrorState(xhr); 
+                    console.error(`Erreur lors de la suppression de l'utilisateur avec ID ${id}:`, xhr);
+                    resolve(false); 
+                },
+            });
+        });
+    }
+    static async getUsers2() {
         this.initHttpState();
         return new Promise(resolve => {
             $.ajax({

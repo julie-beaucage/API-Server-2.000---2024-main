@@ -10,6 +10,8 @@ import RouteRegister from './routeRegister.js';
 
 RouteRegister.add('GET', 'Bookmarks', 'list');
 RouteRegister.add('GET', 'accounts');
+RouteRegister.add('GET', 'accounts/:id', 'index'); 
+RouteRegister.add('GET', 'accounts/:id', 'getUser'); 
 RouteRegister.add('POST', 'accounts', 'register');
 RouteRegister.add('GET', 'accounts', 'verify');
 RouteRegister.add('GET', 'accounts', 'logout');

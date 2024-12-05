@@ -206,7 +206,23 @@ export default class AccountsController extends Controller {
     remove(id) { // warning! this is not an API endpoint 
         // todo make sure that the requester has legitimity to delete ethier itself or its an admin
         if (AccessControl.writeGrantedAdminOrOwner(this.HttpContext.authorizations, this.requiredAuthorizations, id)) {
-            // todo
-        }
+            if (this.repository != null) {
+                const user = this.repository.get(id);
+                if (!user) {
+                    this.HttpContext.response.notFound(`Utilisateur avec ID ${id} non trouvé.`);
+                    return;
+                }
+                const success = this.repository.delete(id);
+                if (success) {
+                    this.HttpContext.response.JSON({
+                        message: `Utilisateur avec ID ${id} supprimé avec succès.`,
+                    });
+                } else {
+                    this.HttpContext.response.internalServerError(`Erreur lors de la suppression de l'utilisateur avec ID ${id}.`);
+                }
+            }else
+            this.HttpContext.response.notImplemented();
+        }else
+           this.HttpContext.response.unAuthorized();
     }
 }
