@@ -150,7 +150,7 @@ function showForm() {
 function showError(message, details = "") {
 
     if (Posts_API.currentStatus == 401) {
-        showLoginForm();
+        showLoginForm("Votre session est expirée. Veuillez vous reconnecter.");
         return
     }
 
@@ -167,12 +167,12 @@ function showError(message, details = "") {
     $("#errorContainer").append($(`<div>${message}</div>`));
     $("#errorContainer").append($(`<div>${details}</div>`));
 }
-function showLoginForm() {
+function showLoginForm(message=null) {
     intialView();
     showForm();
     $("#viewTitle").text("Ajout de nouvelle");
     $('#commit').hide();
-    renderLoginProfil();
+    renderLoginProfil(message);
 }
 function showEditProfileForm(id){
     showForm();
@@ -690,13 +690,14 @@ function renderVerify(){
 }
 
 function renderLoginProfil(message=null){
+    let user = Posts_API.retrieveLoggedUser();
     $("#viewTitle").text("Connexion");
     $("#form").empty();
     $("#form").append(`
-        <div class="messageContainer">
-         
-        </div>
         <form class="form" id ="loginProfilForm">
+            <div class="messageContainer">
+                <div class="error-message" style="color: red; id="errorMessage" >${message??""}</div>
+            </div>
             <input type="email"
                  class="form-control Email"
                  name="Email"
@@ -705,8 +706,8 @@ function renderLoginProfil(message=null){
                  RequireMessage="Veuillez entrer un courriel"
                  InvalidMessage="Courriel introuvable"
                  CustomErrorMessage="Courriel introuvable"
-                 value=""/>
-                 <div class="error-message" style="color: red; id="email-error" ></div>
+                 value="${user ? user.Email : ''}"/>
+                 <div class="error-message" style="color: red;" id="email-error" ></div>
                  </br>
             <input type="password"
                 class="form-control Password"
@@ -716,7 +717,7 @@ function renderLoginProfil(message=null){
                 RequireMessage="Veuillez entrer un mot de passe"
                 InvalidMessage="Mot de passe incorrect"
                 value=""/>
-            <div class="error-message"  style="color: red; id="password-error"></div>
+            <div class="error-message"  style="color: red;" id="password-error"></div>
             <br/>
             <input type="submit" name ="submit" value="Entrer" id="loginButton" class="login_btn btn btn-primary" >
             <hr>
@@ -739,9 +740,11 @@ function renderLoginProfil(message=null){
             console.log(errors.includes("email"));
             if (errors.includes("email"))  {
                 $("#email-error").text(errors);
+                $("#password-error").show();
             }
-            if (errors.Password) {
+            if (errors.includes("Mot de passe")) {
                 $("#password-error").text(errors);
+                $("#password-error").show();
             }
             else{
                 //showError("Une erreur est survenue! ", Posts_API.currentHttpError);
