@@ -18,7 +18,6 @@ export default class Post extends Model {
 
     bindExtraData(instance) {
         instance = super.bindExtraData(instance);
-        console.log(instance);
 
         let author = new Repository(new UserModel()).get(instance.Author);
         console.log(instance);
