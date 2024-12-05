@@ -94,7 +94,7 @@ function toogleShowKeywords() {
 /////////////////////////// Views management ////////////////////////////////////////////////////////////
 
 function intialView() {
-    $("#createPost").show();
+    $("#createPost").hide();
     $("#hiddenIcon").hide();
     $("#hiddenIcon2").hide();
     $('#menu').show();
@@ -106,9 +106,9 @@ function intialView() {
     $('#errorContainer').hide();
     $('#userManagerContainer').hide();
     let loggedUser = Posts_API.retrieveLoggedUser();
-    //console.log(loggedUser);
     if(loggedUser && loggedUser.isSuper){
         timeout();
+        $("#createPost").show();
     }
     showSearchIcon();
 }
@@ -319,20 +319,22 @@ async function renderPosts(queryString) {
     return endOfData;
 }
 function renderPost(post, loggedUser) {
-    let date = convertToFrenchDate(UTC_To_Local(post.Date));
     console.log(loggedUser);
-    let crudIcon= `
-    <span class="editCmd cmdIconSmall fa fa-pencil" postId="${post.Id}" title="Modifier nouvelle"></span>
-    <span class="deleteCmd cmdIconSmall fa fa-trash" postId="${post.Id}" title="Effacer nouvelle"></span>
-    `;
-    if(!loggedUser){
+    let date = convertToFrenchDate(UTC_To_Local(post.Date));
+    let crudIcon= "";
+    let likers =0;
 
+    if(!loggedUser) //Personne ayant access Anonym
+    {
+        crudIcon=`
+          <span>&nbsp</span>
+          <span>&nbsp</span>
+        `;
     }else{
-    if(loggedUser.Id == post.OwnerId){
+    if(loggedUser.Id == post.Author.Id){ 
         crudIcon =  `
         <span class="editCmd cmdIconSmall fa fa-pencil" postId="${post.Id}" title="Modifier nouvelle"></span>
         <span class="deleteCmd cmdIconSmall fa fa-trash" postId="${post.Id}" title="Effacer nouvelle"></span>
-        <span class="likeCmd cmdIconSmall fa fa-thumbs-up" postId="${post.Id}" title="Aimer la nouvelle"></span>
         `;
 
     }else{
@@ -341,12 +343,12 @@ function renderPost(post, loggedUser) {
             <span>&nbsp</span>
             <span class="deleteCmd cmdIconSmall fa fa-trash" postId="${post.Id}" title="Effacer nouvelle"></span>
             `;
-        }else{
-            crudIcon = `
-            <span>&nbsp</span>
-            <span>&nbsp</span>
-            `;
         }
+        crudIcon +=`
+            <span class="toggleLikeCmd cmdIconSmall fa fa-thumbs-up" postId="${post.Id} title="Aimer la nouvelle"></span>
+            <span class="cmdIconSmall title=${likers}"></span>
+            `;
+
     }
 }
     return $(`
