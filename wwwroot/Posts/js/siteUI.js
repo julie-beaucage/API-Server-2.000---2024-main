@@ -148,6 +148,12 @@ function showForm() {
     $('#abort').show();
 }
 function showError(message, details = "") {
+
+    if (Posts_API.currentStatus == 401) {
+        showLoginForm();
+        return
+    }
+
     hidePosts();
     $('#form').hide();
     $('#form').empty();
@@ -162,6 +168,7 @@ function showError(message, details = "") {
     $("#errorContainer").append($(`<div>${details}</div>`));
 }
 function showLoginForm() {
+    intialView();
     showForm();
     $("#viewTitle").text("Ajout de nouvelle");
     $('#commit').hide();
@@ -684,7 +691,6 @@ function renderVerify(){
 }
 
 function renderLoginProfil(message=null){
-    let User = Posts_API.retrieveLoggedUser() || { Email: '', Password: '' };
     $("#viewTitle").text("Connexion");
     $("#form").empty();
     $("#form").append(`
@@ -700,7 +706,7 @@ function renderLoginProfil(message=null){
                  RequireMessage="Veuillez entrer un courriel"
                  InvalidMessage="Courriel introuvable"
                  CustomErrorMessage="Courriel introuvable"
-                 value="${User.Email}"/>
+                 value=""/>
                  <div class="error-message" style="color: red; id="email-error" ></div>
                  </br>
             <input type="password"
@@ -710,7 +716,7 @@ function renderLoginProfil(message=null){
                 required
                 RequireMessage="Veuillez entrer un mot de passe"
                 InvalidMessage="Mot de passe incorrect"
-                value="${User.Password}"/>
+                value=""/>
             <div class="error-message"  style="color: red; id="password-error"></div>
             <br/>
             <input type="submit" name ="submit" value="Entrer" id="loginButton" class="login_btn btn btn-primary" >

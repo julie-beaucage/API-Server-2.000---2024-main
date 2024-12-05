@@ -18,6 +18,10 @@ class Posts_API {
             this.currentHttpError = xhr.statusText == 'error' ? "Service introuvable" : xhr.statusText;
         this.currentStatus = xhr.status;
         this.error = true;
+
+        if (xhr.status == 401) {
+            this.logout();
+        }
     }
     
     static storeAccessToken(token){
@@ -167,7 +171,7 @@ class Posts_API {
                     resolve(data); 
                 },
                 error: (xhr) => {
-                    this.setHttpErrorState(xhr); 
+                    this.setHttpErrorState(xhr);
                     console.error(`Erreur lors de la récupération de l'utilisateur avec ID ${id}:`, xhr);
                     resolve(null);
                 }
