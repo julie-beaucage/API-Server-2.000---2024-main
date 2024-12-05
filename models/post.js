@@ -21,7 +21,7 @@ export default class Post extends Model {
 
         let author = new Repository(new UserModel()).get(instance.Author);
         console.log(instance);
-        instance.Author = { Name: author.Name, Avatar: author.Avatar };
+        instance.Author = { Id: author.Id, Name: author.Name, Avatar: author.Avatar };
         return instance;
     }
 }

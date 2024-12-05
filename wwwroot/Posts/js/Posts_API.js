@@ -182,7 +182,7 @@ class Posts_API {
                 resolve(false);
                 return;
             }
-            const url = this.serverHost() + `/accounts/${id}`;
+            const url = this.serverHost() + `/api/accounts/${id}`;
             $.ajax({
                 url: url,
                 type: 'DELETE',
@@ -219,10 +219,11 @@ class Posts_API {
         });
     }
     static blockUser(user){
+        console.log(user);
         this.initHttpState();
         return new Promise(resolve => {
             $.ajax({
-                url:this.serverHost() + "/Accounts/block/" + this.blockUser.Id,
+                url:this.serverHost() + "/accounts/block/" + user.id,
                 type:'POST',
                 contentType:'application/json',
                 headers:this.getBearerAuthorizationToken(),
