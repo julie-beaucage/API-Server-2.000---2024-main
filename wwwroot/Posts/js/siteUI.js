@@ -350,14 +350,13 @@ function renderPost(post, loggedUser) {
             <span>&nbsp</span>
             <span class="deleteCmd cmdIconSmall fa fa-trash" postId="${post.Id}" title="Effacer nouvelle"></span>
             `;
-        }
-        crudIcon +=`
-            <span class="toggleLikeCmd cmdIconSmall fa fa-thumbs-up" postId="${post.Id} title="Aimer la nouvelle"></span>
-            <span class="cmdIconSmall title=${likers}"></span>
-            `;
-
+        } 
     }
-}
+    crudIcon +=`
+    <span class="toggleLikeCmd cmdIconSmall fa fa-thumbs-up" postId="${post.Id} title="Aimer la nouvelle"></span>
+    <span class="cmdIconSmall title=${likers}"></span>
+    `;
+} 
     return $(`
     <div class="post" id="${post.Id}">
         <div class="postHeader">
