@@ -1,5 +1,6 @@
 
 class Posts_API {
+    static lastEmail = "";
     static Host_URL() { return "http://localhost:5000"; }
     static API_URL() { return this.Host_URL() + "/api/posts" };
     //static API_URL() { return "http://localhost:5000/api/posts" };
@@ -56,6 +57,7 @@ class Posts_API {
     }
     /***LOG OUT */
     static logout() {
+        this.lastEmail = this.retrieveLoggedUser().Email;
         this.eraseAccessToken();
         this.eraseLoggedUser();
     }
