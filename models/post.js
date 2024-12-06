@@ -20,7 +20,7 @@ export default class Post extends Model {
     bindExtraData(instance) {
         instance = super.bindExtraData(instance);
         //PARTIE POUR LIKE DU POST
-        let likesRepository = new Repository(new LikeModel()).get();
+       /* let likesRepository = new Repository(new LikeModel()).get();
         let usersRepository = new Repository(new UserModel()).get(instance.Id)
         let likes = likesRepository.findByFilter(like => like.PostId == instance)
         let postsLikesTab= [];
@@ -28,7 +28,7 @@ export default class Post extends Model {
             let user = usersRepository.get(like.UserId);
             if(user) postsLikesTab.push({Name:user.Name, Avatar: user.Avatar});
         };
-        instance.Likes = postsLikesTab;
+        instance.Likes = postsLikesTab;*/
         
          
         //PARTIE POUR AUTHOR POST

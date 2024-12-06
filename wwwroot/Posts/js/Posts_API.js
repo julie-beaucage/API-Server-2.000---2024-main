@@ -111,18 +111,17 @@ class Posts_API {
             });
         })  
     }
-    static verifyUserProfile(profil){
+    static verifyUserProfile(user,code){
         this.initHttpState();
         return new Promise(resolve => {
             $.ajax({
-                url:this.serverHost() + "/Accounts/verify/" + this.verifyUserProfile.Id,
+                url:this.serverHost() + "/accounts/verify?id="+user.Id+"&code="+code,
                 type:'GET',
                 contentType:'application/json',
                 headers:this.getBearerAuthorizationToken(),
-                data:JSON.stringify(profil),
-                success:(profile) =>{
-                    Posts_API.storeLoggedUser(profile);
-                    resolve(profile);
+                success:(user) =>{
+                    Posts_API.storeLoggedUser(user);
+                    resolve(user);
                 },
                 error: (xhr) => { 
                     Posts_API.setHttpErrorState(xhr); 

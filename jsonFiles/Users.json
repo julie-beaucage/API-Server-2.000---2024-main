@@ -81,13 +81,40 @@
         "Id": "f11ee960-aa82-11ef-b942-e7f097a2ee7a"
     },
     {
-        "Id": "898f7540-b0ee-11ef-9985-5bb62814f2ee",
         "Created": 1733172403,
         "Email": "201386196@edu.clg.qc.ca",
         "Password": "password",
         "Name": "juju",
         "Avatar": "898f9c50-b0ee-11ef-9985-5bb62814f2ee.jpeg",
-        "VerifyCode": 328403,
+        "VerifyCode": "verified",
+        "Authorizations": {
+            "readAccess": 1,
+            "writeAccess": 1
+        },
+        "Id": "898f7540-b0ee-11ef-9985-5bb62814f2ee"
+    },
+    {
+        "Created": 1733436268,
+        "Email": "julie_beaucage10@hotmail.com",
+        "Password": "password",
+        "Name": "julie",
+        "Avatar": "fc615410-b32a-11ef-acfe-1bfb98789143.webp",
+        "VerifyCode": "verified",
+        "Authorizations": {
+            "readAccess": 1,
+            "writeAccess": 1
+        },
+        "Verifycode": 146882,
+        "Id": "fc612d00-b32a-11ef-acfe-1bfb98789143"
+    },
+    {
+        "Id": "860f73e0-b32b-11ef-acfe-1bfb98789143",
+        "Created": 1733436499,
+        "Email": "vaxep51878@ckuer.com",
+        "Password": "pookie",
+        "Name": "test",
+        "Avatar": "860f73e1-b32b-11ef-acfe-1bfb98789143.avif",
+        "VerifyCode": 830609,
         "Authorizations": {
             "readAccess": 1,
             "writeAccess": 1

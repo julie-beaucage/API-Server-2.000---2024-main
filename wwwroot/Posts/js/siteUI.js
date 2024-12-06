@@ -661,11 +661,29 @@ function newUser() {
     return User;
 }
 
+function verify(Code){
+    let user = Posts_API.retrieveLoggedUser();
+    if (!Posts_API.error) {
+        if ( user  !== null)
+            verif_response = Posts_API.verifyUserProfile(user,Code);
+             console.log(verif_response);  
+            if(verif_response) {
+
+
+           }
+        else
+            showError("utilisateur introuvable!");
+    } else {
+        showError(Posts_API.currentHttpError);
+    }
+
+}
+
 function renderVerify(){
     $("#form").empty();
     $("#form").append(`
         <fieldset>
-         <legend> Verifications< </legend>
+         <legend> Verifications</legend>
          <form class="form" id="verifyForm">
            <p>Veuillez entrer le code de vérification que vous avez reçu par courriel </p>
            <br><br>
@@ -674,11 +692,11 @@ function renderVerify(){
                   class="form-control"
                   required
                   RequireMessage="Veuillez entrer un titre"
-                  InvalidMessage="Le titre comporte un caractère illégal"
+                  InvalidMessage="Le code est invalide"
                   placeholder = "Code de verification de couriel"
-                  value="${User.VerifyCode}" />
+                  value="" />
             <br/>
-            <input type="submit" name ="submit" value="Vérifier" id="savePost" class="btn btn-primary displayNone">
+            <input type="submit" name ="submit" value="Vérifier" id="savePost" class="btn btn-primary">
         </fieldset>
     `);
     initFormValidation();
@@ -731,13 +749,15 @@ function renderLoginProfil(message=null){
         let user = getFormData($("#loginProfilForm"));
         user = await Posts_API.login(user);
         if (!Posts_API.error) {
-            loggedUserMenu();
-            await showPosts();
+            if(user.VerifyCode=="verified"){
+                loggedUserMenu();
+                await showPosts();
+            }else{
+                renderVerify();
+            }
         }
         else{
             let errors = Posts_API.currentHttpError;
-            console.log(Posts_API.currentHttpError);
-            console.log(errors.includes("email"));
             if (errors.includes("email"))  {
                 $("#email-error").text(errors);
                 $("#password-error").show();
@@ -830,7 +850,7 @@ function renderFormProfile(User=null){
     `);
     if (create){
         $("#deleteAccountButton").hide();
-        $("#saveUser").hide();
+        $("#saveUser").show();
     }
     initImageUploaders();
     initFormValidation(); 

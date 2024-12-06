@@ -76,10 +76,15 @@ export default class AccountsController extends Controller {
 
     //GET : /accounts/verify?id=...&code=.....
     verify() {
+        console.log("verify");
         if (this.repository != null) {
             let id = this.HttpContext.path.params.id;
             let code = parseInt(this.HttpContext.path.params.code);
             let userFound = this.repository.findByField('Id', id);
+            console.log(id);
+            console.log(code);
+            console.log(userFound);
+            console.log(userFound.VerifyCode);
             if (userFound) {
                 if (userFound.VerifyCode == code) {
                     userFound.VerifyCode = "verified";
