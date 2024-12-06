@@ -449,6 +449,7 @@ function updateDropDownMenu() {
         updateDropDownMenu();
     });
     $('#login').on("click", async function () {
+        Posts_API.lastEmail = "";
         showLoginForm();
     });
     $('#editProfileCmd').on('click', function () {
@@ -724,7 +725,7 @@ function renderLoginProfil(message=null){
                  RequireMessage="Veuillez entrer un courriel"
                  InvalidMessage="Courriel introuvable"
                  CustomErrorMessage="Courriel introuvable"
-                 value="${user ? user.Email : ''}"/>
+                 value="${user ? user.Email : Posts_API.lastEmail}"/>
                  <div class="error-message" style="color: red;" id="email-error" ></div>
                  </br>
             <input type="password"
