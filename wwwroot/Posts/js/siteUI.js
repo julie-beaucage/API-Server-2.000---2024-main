@@ -253,9 +253,8 @@ function renderUser(user, loggedUser) {
     $userElement.find(".blockUserCmd").on("click", async function () {
         //showDeleteUserForm(user);
         console.log("block");
-        Posts_API.blockUser(user.Id); 
+        Posts_API.blockUser(user); 
     });
-
     return $userElement;
 }
 function changeRoleUser(userId){

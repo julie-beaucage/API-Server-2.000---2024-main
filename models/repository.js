@@ -123,7 +123,9 @@ export default class Repository {
         return object;
     }
     update(id, object, handleAssets = true) {
+        console.log("je update objet ahahhah");
         let objectToModify = {...object}; 
+        console.log(objectToModify);
         delete objectToModify.Id;
         if (!this.model.securedId)
             id = parseInt(id);

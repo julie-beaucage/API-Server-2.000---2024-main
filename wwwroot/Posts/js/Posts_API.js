@@ -212,8 +212,9 @@ class Posts_API {
                 type: 'GET',
                 headers: this.getBearerAuthorizationToken(),
                 //data:JSON.stringify(profil),
-                success: (users) => {
-                    resolve(users); 
+                success: () => {
+                    console.log(`Utilisateur avec ID ${id} supprimé.`);
+                    resolve(true);
                 },
                 error: (xhr) => { 
                     this.setHttpErrorState(xhr); 
@@ -224,18 +225,20 @@ class Posts_API {
         });
     }
     static blockUser(user){
-        console.log(user);
+        console.log("block");
         this.initHttpState();
+        console.log(user);
         return new Promise(resolve => {
             $.ajax({
-                url:this.serverHost() + "/accounts/block/" + user.id,
+                url:this.serverHost() + "/api/accounts/block/" + user.Id,
                 type:'POST',
                 contentType:'application/json',
                 headers:this.getBearerAuthorizationToken(),
                 data:JSON.stringify(user),
-                success:(user) =>{
-                    Posts_API.storeLoggedUser(profile);
-                    resolve(profile);
+                //data: JSON.stringify({ Id: user.Id }), 
+                success:(response) =>{
+                    Posts_API.storeLoggedUser(response);
+                    resolve(response);
                 },
                 error: (xhr) => { Posts_API.setHttpErrorState(xhr); resolve(false); console.log(xhr);}
             });
