@@ -176,13 +176,18 @@ function showError(message, details = "",title="Erreur du serveur...") {
     $("#errorContainer").empty();
     $("#errorContainer").append($(`<div>${message}</div>`));
     $("#errorContainer").append($(`<div>${details}</div>`));
-    if (message.includes("titre incorrect") || message.includes("code de vérification incorrect")) {
-        let button = $(`<div class="" id="login">
-            <i class="menuIcon fa fa-fw mx-2"></i> Connexion
-        </div>`);
+    if (message.includes("titre incorrect") || message.includes("Code de vérification incorrecte")) {
+        let button = $(`
+            <div class="login-container">
+                <button name="button" id="loginButton" class="nouveau_btn btn btn-primary">
+                    Connexion
+                </button>
+            </div>
+        `);
 
         $("#errorContainer").append(button);
-        $('#login').on("click", async function () {
+        $('#loginButton').on("click", async function () {
+            console.log("click");
             Posts_API.lastEmail = ""; 
             showLoginForm();
         });
@@ -683,24 +688,19 @@ function newUser() {
     return User;
 }
 
-function verify(Code){
+async function verify(Code){
     let user = Posts_API.retrieveLoggedUser();
-    if (!Posts_API.error) {
         if ( user  !== null){
-            verif_response = Posts_API.verifyUserProfile(user,Code);
-            console.log(verif_response);  
-           if(verif_response) {
+            let verif_response = await Posts_API.verifyUserProfile(user, Code); // Attendre le résultat de la promesse
+            if (verif_response) {
                showPosts();
            }else{
-               showError("Code de vérification incorrecte");
+               showError("Code de vérification incorrecte","Veuillez réessayer en vous connectant","Erreur de code");
            }
         }
         else
              showError("utilisateur introuvable!");
-    } else {
-       // showError(Posts_API.currentHttpError);
-        console.log(Posts_API.currentHttpError)
-    }
+
 }
 
 function renderVerify(){
