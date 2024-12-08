@@ -37,6 +37,12 @@ async function Init_UI() {
         showPosts();
     });
     installKeywordsOnkeyupEvent();
+    let loggedUser = Posts_API.retrieveLoggedUser();
+    /*if(loggedUser){
+        if(loggedUser!="verified"){
+            renderVerify();
+        }
+    }*/
     await showPosts();
     start_Periodic_Refresh();
 }
@@ -113,6 +119,12 @@ function intialView() {
     showSearchIcon();
 }
 async function showPosts(reset = false) {
+    let loggedUser = Posts_API.retrieveLoggedUser();
+    if(loggedUser){
+        if(loggedUser!="verified"){
+            renderVerify();
+        }
+    }
     intialView();
     $("#viewTitle").text("Fil de nouvelles");
     periodic_Refresh_paused = false;
@@ -147,13 +159,11 @@ function showForm() {
     $('#commit').show();
     $('#abort').show();
 }
-function showError(message, details = "") {
-
+function showError(message, details = "",title="Erreur du serveur...") {
     if (Posts_API.currentStatus == 401) {
         showLoginForm("Votre session est expirée. Veuillez vous reconnecter.");
         return
     }
-
     hidePosts();
     $('#form').hide();
     $('#form').empty();
@@ -161,12 +171,24 @@ function showError(message, details = "") {
     $("#hiddenIcon2").show();
     $('#commit').hide();
     $('#abort').show();
-    $("#viewTitle").text("Erreur du serveur...");
+    $("#viewTitle").text(title);
     $("#errorContainer").show();
     $("#errorContainer").empty();
     $("#errorContainer").append($(`<div>${message}</div>`));
     $("#errorContainer").append($(`<div>${details}</div>`));
+    if (message.includes("titre incorrect") || message.includes("code de vérification incorrect")) {
+        let button = $(`<div class="" id="login">
+            <i class="menuIcon fa fa-fw mx-2"></i> Connexion
+        </div>`);
+
+        $("#errorContainer").append(button);
+        $('#login').on("click", async function () {
+            Posts_API.lastEmail = ""; 
+            showLoginForm();
+        });
+    }
 }
+
 function showLoginForm(message=null) {
     intialView();
     showForm();
@@ -403,7 +425,7 @@ function updateDropDownMenu() {
     let selectClass = selectedCategory === "" ? "fa-check" : "fa-fw";
     let loggedUser = Posts_API.retrieveLoggedUser();
     DDMenu.empty();
-    if (loggedUser) {
+    if (loggedUser&&loggedUser.VerifyCode=="verified") {
         loggedUserMenu();
         DDMenu.append($(`<div class="dropdown-divider"></div>`));
     }else{
@@ -664,19 +686,21 @@ function newUser() {
 function verify(Code){
     let user = Posts_API.retrieveLoggedUser();
     if (!Posts_API.error) {
-        if ( user  !== null)
+        if ( user  !== null){
             verif_response = Posts_API.verifyUserProfile(user,Code);
-             console.log(verif_response);  
-            if(verif_response) {
-
-
+            console.log(verif_response);  
+           if(verif_response) {
+               showPosts();
+           }else{
+               showError("Code de vérification incorrecte");
            }
+        }
         else
-            showError("utilisateur introuvable!");
+             showError("utilisateur introuvable!");
     } else {
-        showError(Posts_API.currentHttpError);
+       // showError(Posts_API.currentHttpError);
+        console.log(Posts_API.currentHttpError)
     }
-
 }
 
 function renderVerify(){
@@ -705,6 +729,15 @@ function renderVerify(){
        event.preventDefault();
        verify(verifyForm.Code);
     });  
+}
+
+function renderErrorVerify(){
+    $("#viewTitle").text("Erreur");
+    $('#login').on("click", async function () {
+        Posts_API.lastEmail = "";
+        showLoginForm();
+    });
+
 }
 
 function renderLoginProfil(message=null){
@@ -780,11 +813,11 @@ function renderLoginProfil(message=null){
 }
 
 function renderFormProfile(User=null){
-    console.log(User);
     let create = User == null;
     if (create) User = newUser();
-    $("#viewTitle").text("Inscription");
+    $("#viewTitle").text(create ? "Inscription" : "Modifier le profil");
     $("#form").empty();
+    $('#commit').hide();
     $("#form").append(`
         <form class="form" id ="createProfilForm">
             <input type="hidden" name="Id" value="${User.Id}"/>
@@ -848,30 +881,47 @@ function renderFormProfile(User=null){
 
         </form>
     `);
+    initImageUploaders();
     if (create){
         $("#deleteAccountButton").hide();
         $("#saveUser").show();
+        initFormValidation(); 
     }
-    initImageUploaders();
-    initFormValidation(); 
-    $("#saveUser").click(function () {
-        Posts_API.modifyUserProfile(user);
- 
-    });
-    $("#commit").click(function () {
-        $("#commit").off();
-        return $('#saveUser').trigger("click");
-    });
-    const serviceUrl = `${Posts_API.serverHost()}/accounts/conflict`;
-    addConflictValidation(serviceUrl,"Email","saveUser");
+    else{
+        console.log(User)//ICI user a son courrriel user.Email == user.Email
+        $("#Email, #Password").one("input change", function () {
+            console.log("Validation initialisée");
+            initFormValidation();
+        });
+    
+    }
+    //const serviceUrl = `${Posts_API.serverHost()}/accounts/conflict`;
+    //addConflictValidation(serviceUrl,"Email","saveUser");
     $('#createProfilForm').on("submit", async function (event) {
         event.preventDefault();
         let user = getFormData($("#createProfilForm"));
+        if (!user.Email || user.Email === "") {
+            user.Email = User.Email; // Réassigner l'email de l'utilisateur s'il est vide
+        }
+        console.log(user); //ICI user na plus de courriel user.Email = ""
+        let response;
+        if (create) {
+            response = await Posts_API.registerUserProfile(user);
+        } else {
+            console.log("await modifty");
+            response = await Posts_API.modifyUserProfile(user);
+        }
         //user = await Posts_API.Save(post, create);
-        user = await Posts_API.registerUserProfile(user);
+        //user = await Posts_API.registerUserProfile(user);
         if (!Posts_API.error) {
-            let message="Votre compte a été créé. Veuillez prendre vos courriels pour récupérer votre code de vérification qui vous sera demandé lors de vottre prochaine connexion.";
-            renderLoginProfil(message); 
+            console.log("changemnet enregisrer");
+            if(create){
+                let message="Votre compte a été créé. Veuillez prendre vos courriels pour récupérer votre code de vérification qui vous sera demandé lors de vottre prochaine connexion.";
+                renderLoginProfil(message); 
+            }
+            else{
+                renderFormProfile(user);
+            }
         }
         else
             showError("Une erreur est survenue! ", Posts_API.currentHttpError);

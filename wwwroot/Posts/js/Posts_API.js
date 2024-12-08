@@ -83,15 +83,16 @@ class Posts_API {
             });
         })  
     }
-    static modifyUserProfile(profil){
+    static modifyUserProfile(profile){
+        console.log(profile);
         this.initHttpState();
         return new Promise(resolve => {
             $.ajax({
-                url:this.serverHost() + "/Accounts/modify/" + this.modifyUserProfile.Id,
+                url:this.serverHost() + "/Accounts/modify/" + profile.Id,
                 type:'PUT',
                 contentType:'application/json',
                 headers:this.getBearerAuthorizationToken(),
-                data:JSON.stringify(profil),
+                data:JSON.stringify(profile),
                 success:(profile) =>{
                     Posts_API.storeLoggedUser(profile);
                     resolve(profile);
@@ -130,7 +131,9 @@ class Posts_API {
                     resolve(user);
                 },
                 error: (xhr) => { 
-                    Posts_API.setHttpErrorState(xhr); 
+                    this.setHttpErrorState(xhr); 
+                    console.error("Erreur lors de la tentative de verification code:", xhr.status, xhr.statusText);
+                    //Posts_API.setHttpErrorState(xhr); 
                     resolve(false); }
             });
         })  
@@ -140,7 +143,7 @@ class Posts_API {
         return new Promise((resolve) => {
             $.ajax({
                 url: "/token", 
-                type: "POST",
+                type:'POST',
                 contentType: "application/json",
                 data: JSON.stringify(user),
                 success: (response) => {
@@ -157,6 +160,26 @@ class Posts_API {
                 },
             });
         });
+    }
+    static blockUser(user){
+        console.log("block");
+        this.initHttpState();
+        console.log(user);
+        return new Promise(resolve => {
+            $.ajax({
+                url:this.serverHost() + "/api/accounts/block/" + user.Id,
+                type:'POST',
+                contentType:'application/json',
+                headers:this.getBearerAuthorizationToken(),
+                data:JSON.stringify(user),
+                //data: JSON.stringify({ Id: user.Id }), 
+                success:(response) =>{
+                    Posts_API.storeLoggedUser(response);
+                    resolve(response);
+                },
+                error: (xhr) => { Posts_API.setHttpErrorState(xhr); resolve(false); console.log(xhr);}
+            });
+        })  
     }
     static async getUsers(id = null) {
         this.initHttpState();
@@ -224,26 +247,7 @@ class Posts_API {
             });
         });
     }
-    static blockUser(user){
-        console.log("block");
-        this.initHttpState();
-        console.log(user);
-        return new Promise(resolve => {
-            $.ajax({
-                url:this.serverHost() + "/api/accounts/block/" + user.Id,
-                type:'POST',
-                contentType:'application/json',
-                headers:this.getBearerAuthorizationToken(),
-                data:JSON.stringify(user),
-                //data: JSON.stringify({ Id: user.Id }), 
-                success:(response) =>{
-                    Posts_API.storeLoggedUser(response);
-                    resolve(response);
-                },
-                error: (xhr) => { Posts_API.setHttpErrorState(xhr); resolve(false); console.log(xhr);}
-            });
-        })  
-    }
+
     static async HEAD() {
         Posts_API.initHttpState();
         return new Promise(resolve => {

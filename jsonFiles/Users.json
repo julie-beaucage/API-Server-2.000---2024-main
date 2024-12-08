@@ -1,16 +1,16 @@
 [
     {
-        "Id": "14cc9390-9057-11ee-9387-59e9bc2909e7",
+        "Created": 1733714167,
         "Email": "Nicolas.Chourot@clg.qc.ca",
         "Password": "password",
-        "Name": "Nicolas Chourot",
+        "Name": "Nicolas Chourotsss",
         "Avatar": "f5795080-4468-11ee-8281-2f600646bb7f.jpeg",
-        "Created": 1702469431,
         "Authorizations": {
             "readAccess": 3,
             "writeAccess": 3
         },
-        "VerifyCode": "verified"
+        "VerifyCode": "verified",
+        "Id": "14cc9390-9057-11ee-9387-59e9bc2909e7"
     },
     {
         "Email": "nicolaschourot@gmail.ca",
@@ -108,16 +108,32 @@
         "Id": "fc612d00-b32a-11ef-acfe-1bfb98789143"
     },
     {
-        "Id": "860f73e0-b32b-11ef-acfe-1bfb98789143",
-        "Created": 1733436499,
-        "Email": "vaxep51878@ckuer.com",
+        "Created": 1733714423,
+        "Email": "cibaxo5264@datingel.com",
         "Password": "pookie",
         "Name": "test",
         "Avatar": "860f73e1-b32b-11ef-acfe-1bfb98789143.avif",
-        "VerifyCode": 830609,
         "Authorizations": {
             "readAccess": 1,
             "writeAccess": 1
-        }
+        },
+        "VerifyCode": 773700,
+        "Id": "860f73e0-b32b-11ef-acfe-1bfb98789143"
+    },
+    {
+        "Id": "59914a70-b4e1-11ef-9b46-fb01e87ae4cf",
+        "Email": "nicolaschourot@gmail.ca",
+        "Password": "************",
+        "Name": "Nicolas Chourot",
+        "Avatar": "http://localhost:5000/assetsRepository/04e2be90-a45c-11ef-9487-5be10abe1de4.jpeg",
+        "Created": 1732463927,
+        "Authorizations": {
+            "readAccess": 1,
+            "writeAccess": 1
+        },
+        "VerifyCode": "verified",
+        "isBlocked": false,
+        "isSuper": false,
+        "isAdmin": false
     }
 ]

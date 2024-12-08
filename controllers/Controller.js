@@ -37,8 +37,11 @@ export default class Controller {
             this.HttpContext.response.unAuthorized("Unauthorized access");
     }
     post(data) {
+        console.log("post");
         if (AccessControl.writeGranted(this.HttpContext.authorizations, this.requiredAuthorizations)) {
             data = this.repository.add(data);
+            console.log(this.repository.model);
+            console.log(this.repository.model.state.inConflict);
             if (this.repository.model.state.isValid) {
                 this.HttpContext.response.created(data);
             } else {
