@@ -94,17 +94,16 @@
         "Id": "898f7540-b0ee-11ef-9985-5bb62814f2ee"
     },
     {
-        "Created": 1733436268,
+        "Created": 1733718323,
         "Email": "julie_beaucage10@hotmail.com",
         "Password": "password",
         "Name": "julie",
-        "Avatar": "fc615410-b32a-11ef-acfe-1bfb98789143.webp",
-        "VerifyCode": "verified",
+        "Avatar": "b1be5f50-b5bb-11ef-9f81-4b9595959033.jpeg",
         "Authorizations": {
             "readAccess": 1,
             "writeAccess": 1
         },
-        "Verifycode": 146882,
+        "VerifyCode": "verified",
         "Id": "fc612d00-b32a-11ef-acfe-1bfb98789143"
     },
     {

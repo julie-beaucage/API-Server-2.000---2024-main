@@ -187,7 +187,6 @@ function showError(message, details = "",title="Erreur du serveur...") {
 
         $("#errorContainer").append(button);
         $('#loginButton').on("click", async function () {
-            console.log("click");
             Posts_API.lastEmail = ""; 
             showLoginForm();
         });
@@ -731,15 +730,6 @@ function renderVerify(){
     });  
 }
 
-function renderErrorVerify(){
-    $("#viewTitle").text("Erreur");
-    $('#login').on("click", async function () {
-        Posts_API.lastEmail = "";
-        showLoginForm();
-    });
-
-}
-
 function renderLoginProfil(message=null){
     let user = Posts_API.retrieveLoggedUser();
     $("#viewTitle").text("Connexion");
@@ -828,6 +818,7 @@ function renderFormProfile(User=null){
                     class="form-control Email"
                     name="Email"
                     placeholder="Courriel"
+                    CustomErrorMessage="Ce courriel est déjà utilisé"
                     value="${User.Email}"
                     
                 />
@@ -836,6 +827,7 @@ function renderFormProfile(User=null){
                     class="form-control EmailVerification MatchedInput"
                     name="Email"
                     placeholder="Verification"
+                    CustomErrorMessage="Ce courriel ne correspond pas"
                     matchedInputId="Email"
                 />
             </fieldset>
@@ -888,22 +880,20 @@ function renderFormProfile(User=null){
         initFormValidation(); 
     }
     else{
-        console.log(User)//ICI user a son courrriel user.Email == user.Email
         $("#Email, #Password").one("input change", function () {
             console.log("Validation initialisée");
             initFormValidation();
         });
     
     }
-    //const serviceUrl = `${Posts_API.serverHost()}/accounts/conflict`;
-    //addConflictValidation(serviceUrl,"Email","saveUser");
+    const serviceUrl = `${Posts_API.serverHost()}/accounts/conflict`;
+    addConflictValidation(serviceUrl,"Email","saveUser");
     $('#createProfilForm').on("submit", async function (event) {
         event.preventDefault();
         let user = getFormData($("#createProfilForm"));
         if (!user.Email || user.Email === "") {
-            user.Email = User.Email; // Réassigner l'email de l'utilisateur s'il est vide
+            user.Email = User.Email; 
         }
-        console.log(user); //ICI user na plus de courriel user.Email = ""
         let response;
         if (create) {
             response = await Posts_API.registerUserProfile(user);
