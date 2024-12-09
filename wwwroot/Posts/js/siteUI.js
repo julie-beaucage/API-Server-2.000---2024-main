@@ -113,7 +113,7 @@ function intialView() {
     $('#userManagerContainer').hide();
     let loggedUser = Posts_API.retrieveLoggedUser();
     if(loggedUser && loggedUser.isSuper){
-        timeout();
+        //timeout();
         $("#createPost").show();
     }
     showSearchIcon();
@@ -1005,15 +1005,16 @@ function newPost() {
     Post.Category = "";
     return Post;
 }
-function renderPostForm(post = null) {
-    let create = post == null;
-    if (create) post = newPost();
+function renderPostForm(Post = null) {
+    let create = Post == null;
+    if (create) Post = newPost();
+    console.log(Post.Author);
     $("#form").show();
     $("#form").empty();
     $("#form").append(`
         <form class="form" id="postForm">
-            <input type="hidden" name="Id" value="${post.Id}"/>
-             <input type="hidden" name="Date" value="${post.Date}"/>
+            <input type="hidden" name="Id" value="${Post.Id}"/>
+             <input type="hidden" name="Date" value="${Post.Date}"/>
             <label for="Category" class="form-label">Catégorie </label>
             <input 
                 class="form-control"
@@ -1021,7 +1022,7 @@ function renderPostForm(post = null) {
                 id="Category"
                 placeholder="Catégorie"
                 required
-                value="${post.Category}"
+                value="${Post.Category}"
             />
             <label for="Title" class="form-label">Titre </label>
             <input 
@@ -1032,7 +1033,7 @@ function renderPostForm(post = null) {
                 required
                 RequireMessage="Veuillez entrer un titre"
                 InvalidMessage="Le titre comporte un caractère illégal"
-                value="${post.Title}"
+                value="${Post.Title}"
             />
             <label for="Url" class="form-label">Texte</label>
              <textarea class="form-control" 
@@ -1041,14 +1042,14 @@ function renderPostForm(post = null) {
                           placeholder="Texte" 
                           rows="9"
                           required 
-                          RequireMessage = 'Veuillez entrer une Description'>${post.Text}</textarea>
+                          RequireMessage = 'Veuillez entrer une Description'>${Post.Text}</textarea>
 
             <label class="form-label">Image </label>
             <div class='imageUploaderContainer'>
                 <div class='imageUploader' 
                      newImage='${create}' 
                      controlId='Image' 
-                     imageSrc='${post.Image}' 
+                     imageSrc='${Post.Image}' 
                      waitingImage="Loading_icon.gif">
                 </div>
             </div>
@@ -1071,6 +1072,9 @@ function renderPostForm(post = null) {
     $('#postForm').on("submit", async function (event) {
         event.preventDefault();
         let post = getFormData($("#postForm"));
+        console.log(post.Author);
+        console.log(Post.Author);
+        post.Author = Post.Author.Id;
         if (post.Category != selectedCategory)
             selectedCategory = "";
         if (create || !('keepDate' in post))
