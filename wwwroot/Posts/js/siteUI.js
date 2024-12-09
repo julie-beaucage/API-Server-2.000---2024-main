@@ -250,11 +250,24 @@ async function renderUsers() {
 
 }
 function renderUser(user, loggedUser) {
-    let crudIcon =
-    ` <span id="blockUserCmd" class=" blockUserCmd editCmd cmdIconSmall fa-stack fa-lg cmdIconSmall" postId="${user.Id}" title="Bloquer usager">
-        <i class="fa fa-user fa-stack-1x"></i>
-        <i class="fa fa-ban fa-stack-2x text-danger" style="color:red;"></i>
-    </span>
+    let roleIcon;
+    if (user.isadmin) {
+        roleIcon = `<i class="fas fa-user-tie " title="Administrateur" style="color: #007bff;"></i>`;
+    } else if (user.isSuper) {
+        roleIcon = `<i class="fas fa-user-astronaut" title="Super Utilisateur" style="color: #ffc107;"></i>`;
+    } else {
+        roleIcon = `<i class="fa fa-user" title="Utilisateur" style="color: #6c757d;"></i>`;
+    }
+    let crudIcon =`     
+       <span id="promoteUserCmd" class="promoteUserCmd cmdIconSmall">
+         ${roleIcon}
+       </span>
+        <span id="blockUser" class="editCmd cmdIconSmall fa-stack fa-lg" 
+            postId="${user.Id}" 
+            title="${user.Blocked ? "Débloquer usager" : "Bloquer usager"}">
+            <i class="fa fa-user fa-stack-1x"></i>
+            <i class="fa fa-ban fa-stack-2x text-danger" style="${user.Blocked ? "color: red;" : "display: none;"}"></i>
+        </span>
     <span id="deleteUserCmd" class="deleteCmd cmdIconSmall fa fa-trash" postId="${user.Id}" title="Effacer usager"></span>
     `;
     let $userElement =  $(`
@@ -273,6 +286,10 @@ function renderUser(user, loggedUser) {
             </div>
         </div>
     `);
+    $userElement.find(".promoteUserCmd").on("click", async function () {
+        console.log("promote");
+        Posts_API.promoteUser(user); 
+    });
     $userElement.find(".deleteCmd").on("click", async function () {
         showDeleteUserForm(user); 
     });
@@ -844,6 +861,7 @@ function renderFormProfile(User=null){
                     class="form-control password"
                     name="Password"
                     placeholder="Verification"
+                    CustomErrorMessage="Les mots de passe ne corresponde pas"
                     matchedInputId="Password"
                 />
             </fieldset>
@@ -901,8 +919,6 @@ function renderFormProfile(User=null){
             console.log("await modifty");
             response = await Posts_API.modifyUserProfile(user);
         }
-        //user = await Posts_API.Save(post, create);
-        //user = await Posts_API.registerUserProfile(user);
         if (!Posts_API.error) {
             console.log("changemnet enregisrer");
             if(create){
