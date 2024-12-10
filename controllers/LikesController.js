@@ -47,13 +47,12 @@ export default class LikesController extends Controller {
 
     like(id)
     {
-        console.log(this.HttpContext);
         if (AccessControl.readGranted(this.HttpContext.authorizations, AccessControl.user())) {
             if (this.repository != null) {
                 if (id !== '') {
-                    let data = this.repository.get(id);
-
-                    if (data != null)
+                    let data = this.repository.findByFilter(like => like.UserId == this.HttpContext.user.Id && like.PostId == id);
+                    
+                    if (data.length > 0)
                         this.HttpContext.response.JSON(data);
                     else {
                         let like = {

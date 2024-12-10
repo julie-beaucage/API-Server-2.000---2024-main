@@ -332,19 +332,6 @@ class Posts_API {
         });
     }
 
-    static async GetLikes(id) {
-        Posts_API.initHttpState();
-        return new Promise(resolve => {
-            $.ajax({
-                url: this.Host_URL() + "/api/likes/" + id,
-                type: "GET",
-                headers: this.getBearerAuthorizationToken(),
-                success: (data) => { resolve(data); },
-                error: (xhr) => { Posts_API.setHttpErrorState(xhr); resolve(null); }
-            });
-        });
-    }
-
     static async Like(id) {
         Posts_API.initHttpState();
         return new Promise(resolve => {
