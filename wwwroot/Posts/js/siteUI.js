@@ -400,7 +400,7 @@ function renderPost(post, loggedUser) {
         if (likes.find(like => like.UserId == loggedUser.Id)) {
             crudIcon +=`
             <span class="toggleLikeCmd cmdIconSmall fa-solid fa-thumbs-up" postId="${post.Id}" isLiked="true" title="Ne plus aimer la nouvelle"></span>
-            <span class="cmdIconSmall title=${likers}">${post.Likes.length} allo </span>
+            <span class="cmdIconSmall title=${likers}">${post.Likes.length} </span>
             `;
         } else {
             crudIcon +=`
