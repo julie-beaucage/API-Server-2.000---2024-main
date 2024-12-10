@@ -70,6 +70,7 @@ export const Registered_EndPoint = function (HttpContext) {
                 const { default: Controller } =
                     await import('./controllers/' + HttpContext.path.controllerName + '.js');
                 let controller = new Controller(HttpContext);
+                console.log(route.actionName);
                 if (route.method === 'POST' || route.method === 'PUT') {
                     if (HttpContext.payload)
                         controller[route.actionName](HttpContext.payload);

@@ -160,10 +160,6 @@ function showForm() {
     $('#abort').show();
 }
 function showError(message, details = "",title="Erreur du serveur...") {
-    if (Posts_API.currentStatus == 401) {
-        showLoginForm("Votre session est expirée. Veuillez vous reconnecter.");
-        return
-    }
     hidePosts();
     $('#form').hide();
     $('#form').empty();
@@ -194,6 +190,7 @@ function showError(message, details = "",title="Erreur du serveur...") {
 }
 
 function showLoginForm(message=null) {
+    console.log("showLoginForm");
     intialView();
     showForm();
     $("#viewTitle").text("Ajout de nouvelle");
@@ -353,11 +350,14 @@ async function renderPosts(queryString) {
         currentPostsCount = parseInt(currentETag.split("-")[0]);
         let Posts = response.data;
         if (Posts.length > 0) {
-            Posts.forEach(Post => {
-                postsPanel.append(renderPost(Post,loggedUser));
-            });
+
+            for (let i = 0; i < Posts.length; i++) {
+                let post = await renderPost(Posts[i],loggedUser);
+                postsPanel.append(post);
+            }
         } else
             endOfData = true;
+
         linefeeds_to_Html_br(".postText");
         highlightKeywords();
         attach_Posts_UI_Events_Callback();
@@ -367,11 +367,13 @@ async function renderPosts(queryString) {
     removeWaitingGif();
     return endOfData;
 }
-function renderPost(post, loggedUser) {
-    console.log(loggedUser);
+async function renderPost(post, loggedUser) {
+    
+    let likes = await Posts_API.GetLikes(post.Id);
+    
     let date = convertToFrenchDate(UTC_To_Local(post.Date));
     let crudIcon= "";
-    let likers =0;
+    let likers = 0;
 
     if(!loggedUser) //Personne ayant access Anonym
     {
@@ -379,51 +381,61 @@ function renderPost(post, loggedUser) {
           <span>&nbsp</span>
           <span>&nbsp</span>
         `;
-    }else{
-    if(loggedUser.Id == post.Author.Id){ 
-        crudIcon =  `
-        <span class="editCmd cmdIconSmall fa fa-pencil" postId="${post.Id}" title="Modifier nouvelle"></span>
-        <span class="deleteCmd cmdIconSmall fa fa-trash" postId="${post.Id}" title="Effacer nouvelle"></span>
-        `;
-
-    }else{
-        if(loggedUser.isAdmin){
-            crudIcon = `
-            <span>&nbsp</span>
+    } else {
+        if(loggedUser.Id == post.Author.Id){ 
+            crudIcon =  `
+            <span class="editCmd cmdIconSmall fa fa-pencil" postId="${post.Id}" title="Modifier nouvelle"></span>
             <span class="deleteCmd cmdIconSmall fa fa-trash" postId="${post.Id}" title="Effacer nouvelle"></span>
             `;
-        } 
+
+        } else {
+            if(loggedUser.isAdmin)
+            {
+                crudIcon = `
+                <span>&nbsp</span>
+                <span class="deleteCmd cmdIconSmall fa fa-trash" postId="${post.Id}" title="Effacer nouvelle"></span>
+                `;
+            } 
+        }
+
+        if (likes.find(like => like.UserId == loggedUser.Id)) {
+            crudIcon +=`
+            <span class="toggleLikeCmd cmdIconSmall fa-solid fa-thumbs-up" postId="${post.Id}" isLiked="true" title="Ne plus aimer la nouvelle"></span>
+            <span class="cmdIconSmall title=${likers}"></span>
+            `;
+        } else {
+            crudIcon +=`
+            <span class="toggleLikeCmd cmdIconSmall fa-regular fa-thumbs-up" postId="${post.Id}" isLiked="false" title="Aimer la nouvelle"></span>
+            <span class="cmdIconSmall title=${likers}"></span>
+            `;
+        }
     }
-    crudIcon +=`
-    <span class="toggleLikeCmd cmdIconSmall fa fa-thumbs-up" postId="${post.Id} title="Aimer la nouvelle"></span>
-    <span class="cmdIconSmall title=${likers}"></span>
-    `;
-} 
+    
     return $(`
-    <div class="post" id="${post.Id}">
-        <div class="postHeader">
-            ${post.Category}
-            ${crudIcon}
-        </div>
-        <div class="postTitle"> ${post.Title} </div>
-        <img class="postImage" src='${post.Image}'/>
-        <div class="flex-row postInfo">
-            <div class="flex-row">
-                <div class="" style="background-image: url('${post.Author.Avatar}'); margin-right:0.7em; width: 40px; height: 40px; background-size: cover; border-radius: 50%;">
-                </div>
-                <b class="">${post.Author.Name}</b>
+        <div class="post" id="${post.Id}">
+            <div class="postHeader">
+                ${post.Category}
+                ${crudIcon}
             </div>
-            <div class="postDate"> ${date} </div>
+            <div class="postTitle"> ${post.Title} </div>
+            <img class="postImage" src='${post.Image}'/>
+            <div class="flex-row postInfo">
+                <div class="flex-row">
+                    <div class="" style="background-image: url('${post.Author.Avatar}'); margin-right:0.7em; width: 40px; height: 40px; background-size: cover; border-radius: 50%;">
+                    </div>
+                    <b class="">${post.Author.Name}</b>
+                </div>
+                <div class="postDate"> ${date} </div>
+            </div>
+            <div postId="${post.Id}" class="postTextContainer hideExtra">
+                <div class="postText" >${post.Text}</div>
+            </div>
+            <div class="postfooter">
+                <span postId="${post.Id}" class="moreText cmdIconXSmall fa fa-angle-double-down" title="Afficher la suite"></span>
+                <span postId="${post.Id}" class="lessText cmdIconXSmall fa fa-angle-double-up" title="Réduire..."></span>
+            </div>         
         </div>
-        <div postId="${post.Id}" class="postTextContainer hideExtra">
-            <div class="postText" >${post.Text}</div>
-        </div>
-        <div class="postfooter">
-            <span postId="${post.Id}" class="moreText cmdIconXSmall fa fa-angle-double-down" title="Afficher la suite"></span>
-            <span postId="${post.Id}" class="lessText cmdIconXSmall fa fa-angle-double-up" title="Réduire..."></span>
-        </div>         
-    </div>
-`);
+    `);
 }
 async function compileCategories() {
     categories = [];
@@ -574,6 +586,30 @@ function attach_Posts_UI_Events_Callback() {
         $(`.postTextContainer[postId=${$(this).attr("postId")}]`).addClass('hideExtra');
         $(`.postTextContainer[postId=${$(this).attr("postId")}]`).removeClass('showExtra');
     })
+
+    $('.toggleLikeCmd').off();
+    $('.toggleLikeCmd').on('click', async function () {
+        console.log("like");
+        let postId = $(this).attr("postId");
+        let isLiked = $(this).attr("isLiked") == "true";
+        let response = null;
+        if (isLiked) {
+            response = await Posts_API.Unlike(postId);
+        }
+        else {
+            response = await Posts_API.Like(postId);
+        }
+
+        console.log(response);
+
+        if (!Posts_API.error) {
+            $(this).attr("isLiked", !isLiked);
+            $(this).toggleClass("fa-regular");
+            $(this).toggleClass("fa-solid");
+            let likers = response.length;
+            //$(this).next().text(likers);
+        }
+    });
 }
 function addWaitingGif() {
     clearTimeout(waiting);
