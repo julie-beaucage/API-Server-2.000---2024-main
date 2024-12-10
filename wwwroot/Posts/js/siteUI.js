@@ -352,7 +352,7 @@ async function renderPosts(queryString) {
         if (Posts.length > 0) {
 
             for (let i = 0; i < Posts.length; i++) {
-                let post = await renderPost(Posts[i],loggedUser);
+                let post = renderPost(Posts[i],loggedUser);
                 postsPanel.append(post);
             }
         } else
@@ -367,9 +367,9 @@ async function renderPosts(queryString) {
     removeWaitingGif();
     return endOfData;
 }
-async function renderPost(post, loggedUser) {
+function renderPost(post, loggedUser) {
     
-    let likes = await Posts_API.GetLikes(post.Id);
+    let likes = post.Likes;
     
     let date = convertToFrenchDate(UTC_To_Local(post.Date));
     let crudIcon= "";
