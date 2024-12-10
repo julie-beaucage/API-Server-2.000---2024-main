@@ -21,6 +21,7 @@ class Posts_API {
         this.error = true;
 
         if (xhr.status == 401) {
+            showLoginForm("Votre session est expirée. Veuillez vous reconnecter.");
             this.logout();
         }
     }
@@ -327,6 +328,49 @@ class Posts_API {
                 error: (xhr) => {
                     Posts_API.setHttpErrorState(xhr); resolve(null);
                 }
+            });
+        });
+    }
+
+    static async GetLikes(id) {
+        Posts_API.initHttpState();
+        return new Promise(resolve => {
+            $.ajax({
+                url: this.Host_URL() + "/api/likes/" + id,
+                type: "GET",
+                headers: this.getBearerAuthorizationToken(),
+                success: (data) => { resolve(data); },
+                error: (xhr) => { Posts_API.setHttpErrorState(xhr); resolve(null); }
+            });
+        });
+    }
+
+    static async Like(id) {
+        Posts_API.initHttpState();
+        return new Promise(resolve => {
+            $.ajax({
+                url: this.Host_URL() + "/likes/like",
+                type: "POST",
+                headers: this.getBearerAuthorizationToken(),
+                contentType: 'application/json',
+                data: JSON.stringify(id),
+                success: (data) => { resolve(data); },
+                error: (xhr) => { Posts_API.setHttpErrorState(xhr); resolve(null); }
+            });
+        });
+    }
+
+    static async Unlike(id) {
+        Posts_API.initHttpState();
+        return new Promise(resolve => {
+            $.ajax({
+                url: this.Host_URL() + "/likes/unlike",
+                type: "POST",
+                headers: this.getBearerAuthorizationToken(),
+                contentType: 'application/json',
+                data: JSON.stringify(id),
+                success: (data) => { resolve(data); },
+                error: (xhr) => { Posts_API.setHttpErrorState(xhr); resolve(null); }
             });
         });
     }

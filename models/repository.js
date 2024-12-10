@@ -198,6 +198,20 @@ export default class Repository {
             this.write();
         }
     }
+    removeByFilter(filterFunc) {
+        let objectsList = this.objects();
+        if (objectsList) {
+            let indexToDelete = [];
+            let index = 0;
+            for (let object of objectsList) {
+                if (filterFunc(object)) {
+                    indexToDelete.push(index);
+                }
+                index++;
+            }
+            this.removeByIndex(indexToDelete);
+        }
+    }
     keepByFilter(filterFunc) {
         let objectsList = this.objects();
         if (objectsList) {
