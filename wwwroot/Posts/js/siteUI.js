@@ -370,7 +370,6 @@ async function renderPosts(queryString) {
 function renderPost(post, loggedUser) {
     
     let likes = post.Likes;
-    
     let date = convertToFrenchDate(UTC_To_Local(post.Date));
     let crudIcon= "";
     let likers = 0;
@@ -401,7 +400,7 @@ function renderPost(post, loggedUser) {
         if (likes.find(like => like.UserId == loggedUser.Id)) {
             crudIcon +=`
             <span class="toggleLikeCmd cmdIconSmall fa-solid fa-thumbs-up" postId="${post.Id}" isLiked="true" title="Ne plus aimer la nouvelle"></span>
-            <span class="cmdIconSmall title=${likers}"></span>
+            <span class="cmdIconSmall title=${likers}">${post.Likes.length} allo </span>
             `;
         } else {
             crudIcon +=`
@@ -607,7 +606,7 @@ function attach_Posts_UI_Events_Callback() {
             $(this).toggleClass("fa-regular");
             $(this).toggleClass("fa-solid");
             let likers = response.length;
-            //$(this).next().text(likers);
+            $(this).next().text(likers);
         }
     });
 }
