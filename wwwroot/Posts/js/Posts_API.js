@@ -309,6 +309,7 @@ class Posts_API {
             $.ajax({
                 url: create ? this.API_URL() : this.API_URL() + "/" + data.Id,
                 type: create ? "POST" : "PUT",
+                headers: this.getBearerAuthorizationToken(),
                 contentType: 'application/json',
                 data: JSON.stringify(data),
                 success: (data) => { resolve(data); },
@@ -320,6 +321,7 @@ class Posts_API {
         return new Promise(resolve => {
             $.ajax({
                 url: this.API_URL() + "/" + id,
+                headers: this.getBearerAuthorizationToken(),
                 type: "DELETE",
                 complete: () => {
                     Posts_API.initHttpState();
