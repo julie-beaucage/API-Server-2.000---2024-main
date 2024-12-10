@@ -174,9 +174,8 @@ class Posts_API {
                 headers:this.getBearerAuthorizationToken(),
                 data:JSON.stringify(user),
                 //data: JSON.stringify({ Id: user.Id }), 
-                success:(response) =>{
-                    Posts_API.storeLoggedUser(response);
-                    resolve(response);
+                success: () => {
+                    resolve(true); 
                 },
                 error: (xhr) => { Posts_API.setHttpErrorState(xhr); resolve(false); console.log(xhr);}
             });
