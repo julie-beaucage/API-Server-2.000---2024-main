@@ -163,12 +163,10 @@ class Posts_API {
         });
     }
     static blockUser(user){
-        console.log("block");
         this.initHttpState();
-        console.log(user);
         return new Promise(resolve => {
             $.ajax({
-                url:this.serverHost() + "/api/accounts/block/" + user.Id,
+                url:this.serverHost() + "/accounts/block/" + user.Id,
                 type:'POST',
                 contentType:'application/json',
                 headers:this.getBearerAuthorizationToken(),
@@ -185,14 +183,12 @@ class Posts_API {
         this.initHttpState();
         return new Promise(resolve => {
             $.ajax({
-                url:this.serverHost() + "/api/accounts/promote/" + user.Id,
+                url:this.serverHost() + "/accounts/promote/" + user.Id,
                 type:'POST',
                 contentType:'application/json',
                 headers:this.getBearerAuthorizationToken(),
                 data:JSON.stringify(user),
-                //data: JSON.stringify({ Id: user.Id }), 
                 success:(response) =>{
-                    Posts_API.storeLoggedUser(response);
                     resolve(response);
                 },
                 error: (xhr) => { Posts_API.setHttpErrorState(xhr); resolve(false); console.log(xhr);}

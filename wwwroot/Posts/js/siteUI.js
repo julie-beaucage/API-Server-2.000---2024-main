@@ -159,7 +159,16 @@ function showForm() {
     $('#commit').show();
     $('#abort').show();
 }
+function hideForm() {
+    $('#form').hide();
+    $('#form').empty();
+    $('#commit').hide();
+}
 function showError(message, details = "",title="Erreur du serveur...") {
+
+    if (Posts_API.currentStatus == 401) 
+        return;
+
     hidePosts();
     $('#form').hide();
     $('#form').empty();
@@ -202,11 +211,6 @@ function showEditProfileForm(id){
     $("#viewTitle").text("Modification");
     renderEditUserForm(id);
 }
-function showDeleteUserForm(id) {
-    showForm();
-    $("#viewTitle").text("Retrait");
-    renderDeleteUserForm(id);
-}
 function showCreatePostForm() {
     showForm();
     $("#viewTitle").text("Ajout de nouvelle");
@@ -235,20 +239,21 @@ function showAbout() {
 async function renderUsers() {
     let users = await Posts_API.getUsers();
     if (!Posts_API.error) {
-        console.log(users.length);
+        $('#userManagerContainer').empty();
+        currentId = Posts_API.retrieveLoggedUser().Id;
         if (users.length > 0) {
             users.forEach(user => {
+                if (user.Id == currentId) return;
                 $('#userManagerContainer').append(renderUser(user));
             });
         } 
     } else {
         showError(Posts_API.currentHttpError);
     }
-
 }
 function renderUser(user, loggedUser) {
     let roleIcon;
-    if (user.isadmin) {
+    if (user.isAdmin) {
         roleIcon = `<i class="fas fa-user-tie " title="Administrateur" style="color: #007bff;"></i>`;
     } else if (user.isSuper) {
         roleIcon = `<i class="fas fa-user-astronaut" title="Super Utilisateur" style="color: #ffc107;"></i>`;
@@ -261,13 +266,12 @@ function renderUser(user, loggedUser) {
        </span>
         <span id="blockUser" class="blockUserCmd editCmd cmdIconSmall fa-stack fa-lg" 
             postId="${user.Id}" 
-            title="${user.Blocked ? "Débloquer usager" : "Bloquer usager"}">
-            <i class="fa fa-user fa-stack-1x"></i>
-            <i class="fa fa-ban fa-stack-2x text-danger" style="${user.Blocked ? "color: red;" : "display: none;"}"></i>
+            title="${user.isBlocked ? "Débloquer usager" : "Bloquer usager"}">
+            <i class="fa-solid ${user.isBlocked ? "fa-ban" : "fa-circle-check"}"></i>
         </span>
     <span id="deleteUserCmd" class="deleteCmd cmdIconSmall fa fa-trash" postId="${user.Id}" title="Effacer usager"></span>
     `;
-    let $userElement =  $(`
+    let $userElement = $(`
         <div class="user" id="${user.Id}"> 
             <div class="userContainer noselect">
                 <div class="userLayout">
@@ -284,16 +288,18 @@ function renderUser(user, loggedUser) {
         </div>
     `);
     $userElement.find(".promoteUserCmd").on("click", async function () {
-        console.log("promote");
-        Posts_API.promoteUser(user); 
+        Posts_API.promoteUser(user);
+        renderUsers();
     });
     $userElement.find(".deleteCmd").on("click", async function () {
-        showDeleteUserForm(user); 
+        if (confirm("Voulez-vous vraiment effacer cet usager?")) {
+            Posts_API.removeUser(user.Id);
+            renderUsers();
+        }
     });
     $userElement.find(".blockUserCmd").on("click", async function () {
-        //showDeleteUserForm(user);
-        console.log("block");
-        Posts_API.blockUser(user); 
+        Posts_API.blockUser(user);
+        renderUsers();
     });
     return $userElement;
 }
@@ -688,44 +694,38 @@ async function renderEditUserForm(id) {
     }
     removeWaitingGif();
 }
-async function renderDeleteUserForm(user) {
-    //let response = await Posts_API.getUsers(id)
-    //console.log(response);
-    //if (!Posts_API.error) {
-        //let user = response.data;
-        if (user !== null) {
-            $("#form").append(`
-                <div class="user" id="${user.Id}"> 
-                    <div class="userContainer noselect">
-                        <div class="userLayout">
-                            <div class="avatar" style="background-image:url('${user.Avatar}')"></div>
-                            <div class="userInfo">
-                                <span class="contactName">${user.Name}</span>
-                                <a href="mailto:${user.Email}" class="contactEmail" target="_blank" >${user.Email}</a>
-                            </div>
+function renderDeleteUserForm(user) {
+    if (user !== null) {
+        $("#form").append(`
+            <div class="user" id="${user.Id}"> 
+                <div class="userContainer noselect">
+                    <div class="userLayout">
+                        <div class="avatar" style="background-image:url('${user.Avatar}')"></div>
+                        <div class="userInfo">
+                            <span class="contactName">${user.Name}</span>
+                            <a href="mailto:${user.Email}" class="contactEmail" target="_blank" >${user.Email}</a>
                         </div>
                     </div>
                 </div>
-            `);
-            $('#commit').on("click", async function () {
-                await Posts_API.removeUser(user.Id);
-                if (!Posts_API.error) {
-                    await showUsers();
-                }
-                else {
-                    console.log(Posts_API.currentHttpError)
-                    showError("Une erreur est survenue!");
-                }
-            });
-            $('#cancel').on("click", async function () {
-                await showUsers();
-            });
+            </div>
+        `);
+        $('#commit').on("click", async function () {
+            await Posts_API.removeUser(user.Id);
+            if (Posts_API.error) {
+                console.log(Posts_API.currentHttpError)
+                showError("Une erreur est survenue!");
+            }
+            hideForm();
+            showUsers();
+        });
+        $('#cancel').on("click", async function () {
+            console.log("cancel");
+            showUsers();
+        });
 
-        } else {
-            showError("Post introuvable!");
-        }
-   // } else
-        //showError(Posts_API.currentHttpError);
+    } else {
+        showError("Utilisateur introuvable!");
+    }
 }
 function newUser() {
     let User = {};

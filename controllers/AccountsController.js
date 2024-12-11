@@ -164,7 +164,7 @@ export default class AccountsController extends Controller {
                 foundUser.Authorizations.writeAccess = foundUser.Authorizations.writeAccess == 1 ? -1 : 1;
                 this.repository.update(user.Id, foundUser, false);
                 if (this.repository.model.state.isValid) {
-                    userFound = this.repository.get(userFound.Id); // get data binded record
+                    let userFound = this.repository.get(foundUser.Id); // get data binded record
                     this.HttpContext.response.JSON(userFound);
                 }
                 else
@@ -216,7 +216,6 @@ export default class AccountsController extends Controller {
     // GET:account/remove/id
     remove(id) { // warning! this is not an API endpoint 
         // todo make sure that the requester has legitimity to delete ethier itself or its an admin
-        console.log(this.HttpContext)
         if (AccessControl.writeGrantedAdminOrOwner(this.HttpContext, this.requiredAuthorizations, id)) {
             if (this.repository != null) {
                 const user = this.repository.get(id);

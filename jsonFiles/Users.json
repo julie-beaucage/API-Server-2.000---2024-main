@@ -19,8 +19,8 @@
         "Avatar": "04e2be90-a45c-11ef-9487-5be10abe1de4.jpeg",
         "Created": 1732463927,
         "Authorizations": {
-            "readAccess": 1,
-            "writeAccess": 1
+            "readAccess": 3,
+            "writeAccess": 3
         },
         "VerifyCode": "verified",
         "Id": "02a2b9a0-a45c-11ef-9487-5be10abe1de4"
@@ -117,21 +117,5 @@
         },
         "VerifyCode": 773700,
         "Id": "860f73e0-b32b-11ef-acfe-1bfb98789143"
-    },
-    {
-        "Id": "59914a70-b4e1-11ef-9b46-fb01e87ae4cf",
-        "Email": "nicolaschourot@gmail.ca",
-        "Password": "************",
-        "Name": "Nicolas Chourot",
-        "Avatar": "http://localhost:5000/assetsRepository/04e2be90-a45c-11ef-9487-5be10abe1de4.jpeg",
-        "Created": 1732463927,
-        "Authorizations": {
-            "readAccess": 1,
-            "writeAccess": 1
-        },
-        "VerifyCode": "verified",
-        "isBlocked": false,
-        "isSuper": false,
-        "isAdmin": false
     }
 ]
