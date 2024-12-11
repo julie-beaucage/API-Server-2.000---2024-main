@@ -378,7 +378,7 @@ function renderPost(post, loggedUser) {
     let likes = post.Likes;
     let date = convertToFrenchDate(UTC_To_Local(post.Date));
     let crudIcon= "";
-    let likers = 0;
+    let likers = likes.map(like => like.Name).join("\n");
 
     if(!loggedUser) //Personne ayant access Anonym
     {
@@ -406,12 +406,12 @@ function renderPost(post, loggedUser) {
         if (likes.find(like => like.UserId == loggedUser.Id)) {
             crudIcon +=`
             <span class="toggleLikeCmd cmdIconSmall fa-solid fa-thumbs-up" postId="${post.Id}" isLiked="true" title="Ne plus aimer la nouvelle"></span>
-            <span class="cmdIconSmall title=${likers}">${post.Likes.length} </span>
+            <span class="cmdIconSmall" title="${likers}">${post.Likes.length}</span>
             `;
         } else {
             crudIcon +=`
             <span class="toggleLikeCmd cmdIconSmall fa-regular fa-thumbs-up" postId="${post.Id}" isLiked="false" title="Aimer la nouvelle"></span>
-            <span class="cmdIconSmall title=${likers}"></span>
+            <span class="cmdIconSmall" title="${likers}">${post.Likes.length}</span>
             `;
         }
     }
