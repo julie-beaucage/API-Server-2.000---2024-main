@@ -5,6 +5,9 @@ import * as utilities from "../utilities.js";
 import Gmail from "../gmail.js";
 import Controller from './Controller.js';
 import AccessControl from '../accessControl.js';
+import PostModel from '../models/post.js';
+import LikeModel from '../models/post.js';
+import TokensManager from '../tokensManager.js';
 
 export default class AccountsController extends Controller {
     constructor(HttpContext) {
@@ -194,6 +197,8 @@ export default class AccountsController extends Controller {
                         user.VerifyCode = foundedUser.VerifyCode;
                     }
                     this.repository.update(user.Id, user);
+                    let postRepository = new Repository(new PostModel());
+                    postRepository.newETag();
                     let updatedUser = this.repository.get(user.Id); // must get record user.id with binded data
 
                     if (this.repository.model.state.isValid) {
@@ -225,6 +230,14 @@ export default class AccountsController extends Controller {
                 }
                 const success = this.repository.remove(id);
                 if (success) {
+                    let postRepository = new Repository(new PostModel());
+                    postRepository.removeByFilter(post => post.Author == id);
+
+                    let likeRepository = new Repository(new LikeModel());
+                    likeRepository.removeByFilter(like => like.UserId == id);
+
+                    TokensManager.logout(id);
+                    
                     this.HttpContext.response.JSON({
                         message: `Utilisateur avec ID ${id} supprimé avec succès.`,
                     });

@@ -75,7 +75,6 @@ export default class PostModelsController extends Controller {
                 this.HttpContext.response.notImplemented();
         }
         else {
-            console.log("no");
             this.HttpContext.response.unAuthorized("Unauthorized access");
         }
     }
@@ -105,7 +104,6 @@ export default class PostModelsController extends Controller {
                 this.HttpContext.response.notImplemented();
         }
         else {
-            console.log("no");
             this.HttpContext.response.unAuthorized("Unauthorized access");
         }
     }

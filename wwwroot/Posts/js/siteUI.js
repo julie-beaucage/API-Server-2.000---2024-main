@@ -1101,9 +1101,10 @@ function renderPostForm(Post = null) {
         return $('#savePost').trigger("click");
     });
     $('#postForm').on("submit", async function (event) {
+        let loggedUser = Posts_API.retrieveLoggedUser();
         event.preventDefault();
         let post = getFormData($("#postForm"));
-        post.Author = Post.Author.Id;
+        post.Author = loggedUser.Id;
         if (post.Category != selectedCategory)
             selectedCategory = "";
         if (create || !('keepDate' in post))
