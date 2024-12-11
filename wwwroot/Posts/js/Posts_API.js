@@ -333,7 +333,7 @@ class Posts_API {
         Posts_API.initHttpState();
         return new Promise(resolve => {
             $.ajax({
-                url: this.Host_URL() + "/likes/like",
+                url: this.Host_URL() + "/posts/like",
                 type: "POST",
                 headers: this.getBearerAuthorizationToken(),
                 contentType: 'application/json',
@@ -348,7 +348,7 @@ class Posts_API {
         Posts_API.initHttpState();
         return new Promise(resolve => {
             $.ajax({
-                url: this.Host_URL() + "/likes/unlike",
+                url: this.Host_URL() + "/posts/unlike",
                 type: "POST",
                 headers: this.getBearerAuthorizationToken(),
                 contentType: 'application/json',

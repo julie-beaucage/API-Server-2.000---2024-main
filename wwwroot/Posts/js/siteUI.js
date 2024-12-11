@@ -358,7 +358,7 @@ async function renderPosts(queryString) {
         if (Posts.length > 0) {
 
             for (let i = 0; i < Posts.length; i++) {
-                let post = renderPost(Posts[i],loggedUser);
+                let post = renderPost(Posts[i]);
                 postsPanel.append(post);
             }
         } else
@@ -373,8 +373,8 @@ async function renderPosts(queryString) {
     removeWaitingGif();
     return endOfData;
 }
-function renderPost(post, loggedUser) {
-    
+function renderPost(post) {
+    let loggedUser = Posts_API.retrieveLoggedUser();
     let likes = post.Likes;
     let date = convertToFrenchDate(UTC_To_Local(post.Date));
     let crudIcon= "";
@@ -594,7 +594,6 @@ function attach_Posts_UI_Events_Callback() {
 
     $('.toggleLikeCmd').off();
     $('.toggleLikeCmd').on('click', async function () {
-        console.log("like");
         let postId = $(this).attr("postId");
         let isLiked = $(this).attr("isLiked") == "true";
         let response = null;
@@ -605,13 +604,11 @@ function attach_Posts_UI_Events_Callback() {
             response = await Posts_API.Like(postId);
         }
 
-        console.log(response);
-
         if (!Posts_API.error) {
             $(this).attr("isLiked", !isLiked);
             $(this).toggleClass("fa-regular");
             $(this).toggleClass("fa-solid");
-            let likers = response.length;
+            let likers = response.Likes.length;
             $(this).next().text(likers);
         }
     });
@@ -682,7 +679,6 @@ async function renderEditUserForm(id) {
     addWaitingGif();
     //let response = await Posts_API.Get(id)
     let response= await Posts_API.retrieveLoggedUser();
-    console.log(response);
     if (!Posts_API.error) {
        // let User = response.data;
         if ( response !== null)
@@ -1107,8 +1103,6 @@ function renderPostForm(Post = null) {
     $('#postForm').on("submit", async function (event) {
         event.preventDefault();
         let post = getFormData($("#postForm"));
-        console.log(post.Author);
-        console.log(Post.Author);
         post.Author = Post.Author.Id;
         if (post.Category != selectedCategory)
             selectedCategory = "";
