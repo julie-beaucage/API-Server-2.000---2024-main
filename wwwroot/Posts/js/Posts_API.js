@@ -13,6 +13,7 @@ class Posts_API {
         this.error = false;
     }
     static setHttpErrorState(xhr) {
+
         if (xhr.responseJSON)
             this.currentHttpError = xhr.responseJSON.error_description;
         else
@@ -21,8 +22,8 @@ class Posts_API {
         this.error = true;
 
         if (xhr.status == 401) {
-            showLoginForm("Votre session est expirée. Veuillez vous reconnecter.");
             this.logout();
+            showLoginForm("Votre session est expirée. Veuillez vous reconnecter.");
         }
     }
     
@@ -61,6 +62,7 @@ class Posts_API {
         this.lastEmail = this.retrieveLoggedUser().Email;
         this.eraseAccessToken();
         this.eraseLoggedUser();
+        noTimeout();
     }
     /*** Creation user */
     static registerUserProfile(profil){

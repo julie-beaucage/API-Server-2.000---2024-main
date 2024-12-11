@@ -18,15 +18,20 @@ let itemLayout;
 let waiting = null;
 let showKeywords = false;
 let keywordsOnchangeTimger = null;
+let timeoutTime = 600; // 10 minutes
 
 Init_UI();
 
 async function Init_UI() {
+    loggedUser = Posts_API.retrieveLoggedUser();
     postsPanel = new PageManager('postsScrollPanel', 'postsPanel', 'postSample', renderPosts);
     $('#createPost').on("click", async function () {
         showCreatePostForm();
     });
     $('#abort').on("click", async function () {
+        if(loggedUser){
+            timeout(timeoutTime);
+        }
         showPosts();
     });
     $('#aboutCmd').on("click", function () {
@@ -37,12 +42,12 @@ async function Init_UI() {
         showPosts();
     });
     installKeywordsOnkeyupEvent();
-    let loggedUser = Posts_API.retrieveLoggedUser();
-    /*if(loggedUser){
+    if(loggedUser){
+        timeout(timeoutTime);
         if(loggedUser!="verified"){
             renderVerify();
         }
-    }*/
+    }
     await showPosts();
     start_Periodic_Refresh();
 }
@@ -113,7 +118,6 @@ function intialView() {
     $('#userManagerContainer').hide();
     let loggedUser = Posts_API.retrieveLoggedUser();
     if(loggedUser && loggedUser.isSuper){
-        //timeout();
         $("#createPost").show();
     }
     showSearchIcon();
@@ -144,6 +148,10 @@ function hideUsers() {
     periodic_Refresh_paused = true;
 }
 function hidePosts() {
+    let loggedUser = Posts_API.retrieveLoggedUser();
+    if(loggedUser){
+        timeout(timeoutTime);
+    }
     postsPanel.hide();
     hideSearchIcon();
     $("#createPost").hide();
@@ -192,7 +200,7 @@ function showError(message, details = "",title="Erreur du serveur...") {
 
         $("#errorContainer").append(button);
         $('#loginButton').on("click", async function () {
-            Posts_API.lastEmail = ""; 
+            Posts_API.lastEmail = "";
             showLoginForm();
         });
     }
@@ -558,7 +566,7 @@ function loggedUserMenu(){
         $('#logoutCmd').on("click", function () {
             console.log("click logout");
             Posts_API.logout();
-            location.reload(); 
+            location.reload();
         });
     }
 }
@@ -821,6 +829,7 @@ function renderLoginProfil(message=null){
         user = await Posts_API.login(user);
         if (!Posts_API.error) {
             if(user.VerifyCode=="verified"){
+                timeout(timeoutTime);
                 loggedUserMenu();
                 await showPosts();
             }else{

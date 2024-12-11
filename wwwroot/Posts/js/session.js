@@ -15,13 +15,16 @@ function createTimeoutPopup() {
 let currentTimeouID = undefined;
 let initialized = false;
 let timeBeforeRedirect = 5;
-let timeoutCallBack = () => {};
+let timeoutCallBack = () => {
+    console.log("Unauthorized access");
+    Posts_API.logout();
+    showLoginForm("Votre session est expirée. Veuillez vous reconnecter.");
+};
 let infinite = -1;
 let timeLeft = infinite;
 let maxStallingTime = infinite;
 
-function initTimeout(stallingTime = infinite, callback = timeoutCallBack) {
-    maxStallingTime = stallingTime;
+function initTimeout(callback = timeoutCallBack) {
     timeoutCallBack = callback;
     createTimeoutPopup();
     initialized = true;
