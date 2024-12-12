@@ -834,14 +834,17 @@ function renderVerify(){
     });  
 }
 
-function renderLoginProfil(message=null){
+function renderLoginProfil(message=null,messageErreur=null){
     let user = Posts_API.retrieveLoggedUser();
     $("#viewTitle").text("Connexion");
     $("#form").empty();
     $("#form").append(`
         <form class="form" id ="loginProfilForm">
+            <div class="messageContainerErreur">
+                <div class="error-message" style="color: red; id="errorMessage" >${messageErreur??""}</div>
+            </div>
             <div class="messageContainer">
-                <div class="error-message" style="color: red; id="errorMessage" >${message??""}</div>
+                <div class="message" id="Message" >${message??""}</div>
             </div>
             <input type="email"
                  class="form-control Email"
