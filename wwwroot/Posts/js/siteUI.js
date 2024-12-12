@@ -161,7 +161,6 @@ function hidePosts() {
 }
 function showForm() {
     hidePosts();
-    //hideUsers();
     $("#createPost").hide();
     $('#form').show();
     $('#commit').show();
@@ -273,15 +272,15 @@ function renderUser(user, loggedUser) {
         roleIcon = `<i class="fa fa-user" title="Utilisateur" style="color: #6c757d;"></i>`;
     }
     let crudIcon =`     
-       <span id="promoteUserCmd" class="promoteUserCmd cmdIconSmall">
+       <span id="promoteUserCmd" class="promoteUserCmd cmdIconSmallUser">
          ${roleIcon}
        </span>
         <span id="blockUser" class="blockUserCmd cmdIconSmall fa-stack fa-lg" 
             postId="${user.Id}" 
             title="${user.isBlocked ? "Débloquer usager" : "Bloquer usager"}">
-            <i class="fa-solid ${user.isBlocked ? "fa-ban" : "fa-circle-check"}"></i>
+        <i class="fa-solid ${user.isBlocked ? "fa-ban" : "fa-circle-check"} ${user.isBlocked ? "icon-red" : "icon-green"}"></i>
         </span>
-    <span id="deleteUserCmd" class="deleteCmd cmdIconSmall fa fa-trash" postId="${user.Id}" title="Effacer usager"></span>
+    <span id="deleteUserCmd" class="deleteCmd cmdIconSmallUser fa fa-trash" postId="${user.Id}" title="Effacer usager"></span>
     `;
     let $userElement = $(`
         <div class="user" id="${user.Id}"> 
@@ -389,7 +388,10 @@ function renderPost(post) {
     let loggedUser = Posts_API.retrieveLoggedUser();
     let likes = post.Likes;
     let date = convertToFrenchDate(UTC_To_Local(post.Date));
-    let crudIcon= "";
+    let crudIcon=`
+    <span>&nbsp</span>
+    <span>&nbsp</span>
+  `;
     let likers = likes.map(like => like.Name).join("\n");
 
     if(!loggedUser) //Personne ayant access Anonym
@@ -414,7 +416,6 @@ function renderPost(post) {
                 `;
             } 
         }
-
         if (likes.find(like => like.UserId == loggedUser.Id)) {
             crudIcon +=`
             <span class="toggleLikeCmd cmdIconSmall fa-solid fa-thumbs-up" postId="${post.Id}" isLiked="true" title="Ne plus aimer la nouvelle"></span>
@@ -426,8 +427,7 @@ function renderPost(post) {
             <span class="cmdIconSmall" title="${likers}">${post.Likes.length}</span>
             `;
         }
-    }
-    
+    } 
     return $(`
         <div class="post" id="${post.Id}">
             <div class="postHeader">
@@ -569,7 +569,6 @@ function loggedUserMenu(){
         });
 
         $('#logoutCmd').on("click", function () {
-            console.log("click logout");
             Posts_API.logout();
             location.reload();
         });
@@ -957,13 +956,7 @@ async function renderFormProfile(User = null, message = null) {
         $("#deleteAccountButton").hide();
         $("#saveUser").show();
         
-    } /*else {
-        $("#Email, #Password").one("input change", function () {
-            console.log("Validation initialisée");
-            initFormValidation();
-        });
-    }*/
-
+    } 
     $('#createProfilForm').on("submit", async function (event) {
         event.preventDefault();
         let user = getFormData($("#createProfilForm"));
@@ -998,8 +991,6 @@ async function renderFormProfile(User = null, message = null) {
         await showPosts();
     });
     $("#deleteAccountButton").on("click", async function () {
-        //await renderFormProfile();
-        //renderDeleteUserForm(User)
         showDeleteUser(User)
     });
 }
