@@ -49,7 +49,7 @@ body {
     padding: var(--panelPadding);
     background-color: white;
     display: grid;
-    grid-template-columns: 70px auto 36px 36px 30px ;
+    grid-template-columns: 70px auto 36px 36px 30px 30px ;
     width: 100%;
     height: 60px;
     align-items: center;
@@ -161,7 +161,7 @@ body {
     -webkit-text-stroke-color: white;
     text-align: center;
     cursor: pointer;
-}
+}  
 
 .icon-red {
     color: red;
