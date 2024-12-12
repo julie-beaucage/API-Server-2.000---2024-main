@@ -963,9 +963,6 @@ async function renderFormProfile(User = null, message = null) {
         if (!user.Email || user.Email === "") {
             user.Email = User.Email;
         }
-        if (!user.Avatar || user.Avatar === "") {
-            user.Avatar = User.Avatar;
-        }
         delete user.ConfirmEmail;
         delete user.ConfirmPassword;
         if (user.Password === "************")
@@ -983,8 +980,8 @@ async function renderFormProfile(User = null, message = null) {
                 renderLoginProfil(message);
             } else {
                 let message = "Modifications enregistrées";
-                console.log(user);
-                await renderFormProfile(user, message);
+                let response = await Posts_API.retrieveLoggedUser();
+                await renderFormProfile(response, message);
             }
         } else {
             showError("Une erreur est survenue! ", Posts_API.currentHttpError);
