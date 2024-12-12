@@ -965,9 +965,11 @@ async function renderFormProfile(User = null, message = null) {
     $('#createProfilForm').on("submit", async function (event) {
         event.preventDefault();
         let user = getFormData($("#createProfilForm"));
-        console.log(user)
         if (!user.Email || user.Email === "") {
             user.Email = User.Email;
+        }
+        if (!user.Avatar || user.Avatar === "") {
+            user.Avatar = User.Avatar;
         }
         delete user.ConfirmEmail;
         delete user.ConfirmPassword;
@@ -986,6 +988,7 @@ async function renderFormProfile(User = null, message = null) {
                 renderLoginProfil(message);
             } else {
                 let message = "Modifications enregistrées";
+                console.log(user);
                 await renderFormProfile(user, message);
             }
         } else {
