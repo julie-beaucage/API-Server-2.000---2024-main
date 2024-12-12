@@ -276,7 +276,7 @@ function renderUser(user, loggedUser) {
        <span id="promoteUserCmd" class="promoteUserCmd cmdIconSmall">
          ${roleIcon}
        </span>
-        <span id="blockUser" class="blockUserCmd editCmd cmdIconSmall fa-stack fa-lg" 
+        <span id="blockUser" class="blockUserCmd cmdIconSmall fa-stack fa-lg" 
             postId="${user.Id}" 
             title="${user.isBlocked ? "Débloquer usager" : "Bloquer usager"}">
             <i class="fa-solid ${user.isBlocked ? "fa-ban" : "fa-circle-check"}"></i>
