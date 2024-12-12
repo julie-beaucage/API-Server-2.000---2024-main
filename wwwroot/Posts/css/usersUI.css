@@ -9,6 +9,10 @@
     background-color: #dc3545;
     border: none!important;
 }
+.delete_text_message{
+    font-size: 2em;
+    text-align: center;
+}
 .nouveau_btn {
     width: 100%;
     background-color: #0dcaf0;
@@ -25,11 +29,13 @@
     padding-right: 8px;
 }
 .user {
-    margin: auto;
-    width: 100%;
+    margin: 15px;
+    width: 95%;
     scroll-snap-align: start;
+    padding:1em;
     border: 1px solid var(--borderColor);
     border-radius: var(--borderRadius);
+    min-width: fit-content;
 }
 .userContainer {
     display: grid;
@@ -40,7 +46,6 @@
 #userManagerContainer {
     display: flex;
     flex-direction: column;
-    gap: 10px;
 }
 .userLayout {
     display: grid;
@@ -215,4 +220,24 @@
     overflow-y: scroll;
     overflow-y: auto;
     scrollbar-gutter: stable;
+}
+@media screen and (max-width:500px) {
+    .userLayout {
+        grid-template-columns: 60px auto;
+    }
+    .user{
+        width: 100%;
+        margin:0px;
+    }
+    .userCommandPanel{
+        flex-direction:column;
+    }
+    .avatar {
+        background-size: cover;
+        background-position: center;
+        background-repeat: no-repeat;
+        width: 70px;
+        height: 70px;
+        border-radius: 90px;
+    }
 }

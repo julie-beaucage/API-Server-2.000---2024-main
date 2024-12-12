@@ -118,7 +118,11 @@ function intialView() {
     $('#userManagerContainer').hide();
     let loggedUser = Posts_API.retrieveLoggedUser();
     if(loggedUser && loggedUser.isSuper){
+        //timeout(timeoutTime);
+        $("#header").css('grid-template-columns', '70px auto 36px 36px 30px 30px');
         $("#createPost").show();
+    }else { 
+        $("#header").css('grid-template-columns', '70px auto 36px 36px 30px');
     }
     showSearchIcon();
 }
@@ -129,6 +133,12 @@ async function showPosts(reset = false) {
             renderVerify();
         }
     }
+    if(loggedUser && loggedUser.isSuper){
+        timeout(timeoutTime);
+        $("#createPost").show();
+    }else { 
+        $("#header").css('grid-template-columns', '70px auto 36px 36px 30px');
+        }
     intialView();
     $("#viewTitle").text("Fil de nouvelles");
     periodic_Refresh_paused = false;
@@ -204,7 +214,6 @@ function showError(message, details = "",title="Erreur du serveur...") {
 }
 
 function showLoginForm(message=null) {
-    console.log("showLoginForm");
     intialView();
     showForm();
     $("#viewTitle").text("Ajout de nouvelle");
@@ -220,7 +229,8 @@ function showDeleteUser(User){
     showForm();
     $("#viewTitle").text("Effacer le compte");
     console.log(User);
-    renderDeleteUserForm(User);
+    message="Voulez-vous vraiment effacer votre compte?";
+    renderDeleteUserForm(User, message);
 }
 function showCreatePostForm() {
     showForm();
@@ -302,24 +312,53 @@ function renderUser(user, loggedUser) {
         Posts_API.promoteUser(user);
         renderUsers();
     });
-    $userElement.find(".deleteCmd").on("click", async function () {
+    /*$userElement.find(".deleteCmd").on("click", async function () {
         if (confirm("Voulez-vous vraiment effacer cet usager?")) {
             Posts_API.removeUser(user.Id);
             renderUsers();
         }
-    });
-    $userElement.find(".blockUserCmd").on("click", async function () {
+    });*/
+     
+      $userElement.find(".deleteCmd").on("click", async function () {
+         modalDelete();
+         $('#confirmDeleteModal').modal('show'); 
+         $('#confirmDeleteBtn').off('click').on('click', async function () { 
+            Posts_API.removeUser(user.Id); 
+            renderUsers(); $('#confirmDeleteModal').modal('hide'); });
+        });
+    
+         $userElement.find(".blockUserCmd").on("click", async function () {
         Posts_API.blockUser(user);
         renderUsers();
     });
     return $userElement;
 }
-function changeRoleUser(userId){
-    if(user.isAdmin){
 
-    }
-
+function modalDelete() {
+    const modalHTML = `
+    <div class="modal fade" id="confirmDeleteModal" tabindex="-1" role="dialog" aria-labelledby="confirmDeleteModalLabel" aria-hidden="true">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="confirmDeleteModalLabel">Confirmer la suppression</h5>
+                    <button type="button" class="close" data-bs-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    Voulez-vous vraiment effacer cet usager ?
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Annuler</button>
+                    <button type="button" class="btn btn-danger" id="confirmDeleteBtn">Effacer</button>
+                </div>
+            </div>
+        </div>
+    </div>`;
+    
+    $('body').append(modalHTML);
 }
+
 
 //////////////////////////// Posts rendering /////////////////////////////////////////////////////////////
 
@@ -530,7 +569,6 @@ function updateDropDownMenu() {
 
 function loggedUserMenu(){
     let loggedUser= Posts_API.retrieveLoggedUser();
-    console.log(loggedUser);
     if(loggedUser){
         let connectedUser=(`
             <span class="dropdown-item " id="editProfileMenuCmdFromAvatar">
@@ -689,10 +727,8 @@ function highlightKeywords() {
 async function renderEditUserForm(id) {
     $('#commit').show();
     addWaitingGif();
-    //let response = await Posts_API.Get(id)
     let response= await Posts_API.retrieveLoggedUser();
     if (!Posts_API.error) {
-       // let User = response.data;
         if ( response !== null)
             await renderFormProfile( response);
         else
@@ -702,10 +738,11 @@ async function renderEditUserForm(id) {
     }
     removeWaitingGif();
 }
-function renderDeleteUserForm(user) {
+function renderDeleteUserForm(user,message=null) {
     if (user !== null) {
         $("#form").empty();
         $('#commit').hide();
+        $('#abort').hide();
         $("#form").append(`
             <div class="user" id="${user.Id}"> 
                 <div class="userContainer noselect">
@@ -719,8 +756,8 @@ function renderDeleteUserForm(user) {
                 </div>
             </div>
             <div>
-            <p>Voulez-vous vraiment affacer votre compte?</p>
-            <input type="submit" value="Suprimer" id="deleteUser" class="delete_profile_btn btn btn-primary">
+            <p class="delete_text_message">${message}</p>
+            <input type="submit" value="Effacer le compte" id="deleteUser" class="delete_profile_btn btn btn-primary">
             </br><br>
             <input type="button" value="Annuler" id="cancel" class="login_btn btn btn-secondary">            
             </div>
@@ -858,7 +895,6 @@ function renderLoginProfil(message=null){
                 $("#password-error").show();
             }
             else{
-                //showError("Une erreur est survenue! ", Posts_API.currentHttpError);
                 console.log(Posts_API.currentHttpError);
             }
         }
@@ -873,7 +909,7 @@ function renderLoginProfil(message=null){
 async function renderFormProfile(User = null, message = null) {
     let create = User == null;
     if (create) User = newUser();
-    console.log(User);
+    $("#header").css('grid-template-columns', '70px auto 36px 36px 30px');
     $("#viewTitle").text(create ? "Inscription" : "Modifier le profil");
     $("#form").empty();
     $('#commit').hide();
@@ -1019,6 +1055,7 @@ async function renderDeletePostForm(id) {
         let post = response.data;
         if (post !== null) {
             let date = convertToFrenchDate(UTC_To_Local(post.Date));
+            $("#header").css('grid-template-columns', '70px auto 36px 36px 30px 30px');
             $("#form").append(`
                 <div class="post" id="${post.Id}">
                 <div class="postHeader">  ${post.Category} </div>
@@ -1063,9 +1100,9 @@ function newPost() {
 function renderPostForm(Post = null) {
     let create = Post == null;
     if (create) Post = newPost();
-    console.log(Post.Author);
     $("#form").show();
     $("#form").empty();
+    $("#header").css('grid-template-columns', '70px auto 36px 36px 30px 30px');
     $("#form").append(`
         <form class="form" id="postForm">
             <input type="hidden" name="Id" value="${Post.Id}"/>

@@ -164,7 +164,7 @@ body {
 }  
 
 .icon-red {
-    color: red;
+    color: red !important;
 }
 
 .icon-green {
