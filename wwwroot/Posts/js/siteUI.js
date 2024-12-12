@@ -731,7 +731,9 @@ function renderDeleteUserForm(user) {
             if (Posts_API.error) {
                 showError("Une erreur est survenue!");
             }
-            await logout();
+            Posts_API.logout();
+            Posts_API.lastEmail = "";
+            showLoginForm();
         });
         $('#cancel').on("click", async function () {
             showPosts();
