@@ -728,7 +728,6 @@ function renderDeleteUserForm(user) {
         $('#deleteUser').on("click", async function () {
             await Posts_API.removeUser(user.Id);
             if (Posts_API.error) {
-                console.log(Posts_API.currentHttpError)
                 showError("Une erreur est survenue!");
             }
             await logout();
@@ -895,17 +894,13 @@ async function renderFormProfile(User = null, message = null) {
                     InvalidMessage="Le format du courriel est invalide"
                     value="${User.Email}" />
                 </br>
-                <input 
-                    class="form-control MatchedInput"
-                    matchedInputId="Email"
-                    name="ConfirmEmail"
-                    id="ConfirmEmail"
+                <input type="email"
+                    class="form-control EmailVerification MatchedInput"
+                    name="Email"
                     placeholder="Verification"
-                    required
-                    RequireMessage="Veuillez entrer un courrielss"
                     CustomErrorMessage="Ce courriel ne correspond pas"
-                    InvalidMessage="Les courriels ne sont pas identiques"
-                    value="${User.Email} "/>
+                    matchedInputId="Email"
+                />
             </fieldset>
             <fieldset>
                 <legend>Mot de passe</legend>
@@ -969,10 +964,10 @@ async function renderFormProfile(User = null, message = null) {
     $('#createProfilForm').on("submit", async function (event) {
         event.preventDefault();
         let user = getFormData($("#createProfilForm"));
-        console.log(ùser)
-        if (!user.Email || user.Email === "") {
+        console.log(user)
+        /*if (!user.Email || user.Email === "") {
             user.Email = User.Email;
-        }
+        }*/
         delete user.ConfirmEmail;
         delete user.ConfirmPassword;
         if (user.Password === "************")
