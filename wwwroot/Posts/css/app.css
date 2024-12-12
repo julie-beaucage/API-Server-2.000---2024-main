@@ -43,14 +43,13 @@ body {
     overflow-y: scroll;
     overflow: hidden;
 }
-
 #header {
     border: 1px solid var(--borderColor);
     border-radius: var(--borderRadius);
     padding: var(--panelPadding);
     background-color: white;
     display: grid;
-    grid-template-columns: 70px auto 36px 36px 30px 30px;
+    grid-template-columns: 70px auto 36px 36px 30px ;
     width: 100%;
     height: 60px;
     align-items: center;
@@ -156,6 +155,20 @@ body {
     -webkit-text-fill-color: rgb(0, 87, 204);
     text-align: center;
     cursor: pointer;
+}
+.cmdIconSmallUser {
+    font-size: 1.1rem;
+    -webkit-text-stroke-color: white;
+    text-align: center;
+    cursor: pointer;
+}
+
+.icon-red {
+    color: red;
+}
+
+.icon-green {
+    color: green;
 }
 
 .cmdIconXSmall {
