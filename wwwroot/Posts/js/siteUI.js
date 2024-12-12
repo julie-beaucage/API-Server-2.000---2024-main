@@ -530,6 +530,7 @@ function updateDropDownMenu() {
 
 function loggedUserMenu(){
     let loggedUser= Posts_API.retrieveLoggedUser();
+    console.log(loggedUser);
     if(loggedUser){
         let connectedUser=(`
             <span class="dropdown-item " id="editProfileMenuCmdFromAvatar">
@@ -965,9 +966,9 @@ async function renderFormProfile(User = null, message = null) {
         event.preventDefault();
         let user = getFormData($("#createProfilForm"));
         console.log(user)
-        /*if (!user.Email || user.Email === "") {
+        if (!user.Email || user.Email === "") {
             user.Email = User.Email;
-        }*/
+        }
         delete user.ConfirmEmail;
         delete user.ConfirmPassword;
         if (user.Password === "************")

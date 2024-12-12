@@ -26,7 +26,12 @@ class Posts_API {
             showLoginForm("Votre session est expirée. Veuillez vous reconnecter.");
         }
     }
-    
+    static setSessionUser(user) {
+        sessionStorage.setItem('user', JSON.stringify(user));
+    }
+    static getSessionUser() {
+        return JSON.parse(sessionStorage.getItem('user'));
+    }
     static storeAccessToken(token){
         sessionStorage.setItem('access_Token',token);
     }
@@ -63,6 +68,22 @@ class Posts_API {
         this.eraseAccessToken();
         this.eraseLoggedUser();
         noTimeout();
+    }
+    static async Logout(id) {
+        this.initHttpState();
+        return new Promise(resolve => {
+            $.ajax({
+                url: this.API_URL() + '/logout',
+                data: { userId: id },
+                headers: this.headerAccessToken(),
+                complete: (data) => {
+                    this.removeSessionUser();
+                    this.removeAccessToken();
+                    resolve(true);
+                },
+                error: (xhr) => { Accounts_API.setHttpErrorState(xhr); resolve(null); }
+            })
+        });
     }
     /*** Creation user */
     static registerUserProfile(profil){
