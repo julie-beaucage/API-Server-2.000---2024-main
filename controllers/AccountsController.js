@@ -200,7 +200,6 @@ export default class AccountsController extends Controller {
                     let postRepository = new Repository(new PostModel());
                     postRepository.newETag();
                     let updatedUser = this.repository.get(user.Id); // must get record user.id with binded data
-
                     if (this.repository.model.state.isValid) {
                         this.HttpContext.response.JSON(updatedUser, this.repository.ETag);
                     }

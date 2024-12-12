@@ -173,10 +173,8 @@ function hideForm() {
     $('#commit').hide();
 }
 function showError(message, details = "",title="Erreur du serveur...") {
-
     if (Posts_API.currentStatus == 401) 
         return;
-
     hidePosts();
     $('#form').hide();
     $('#form').empty();
@@ -218,6 +216,12 @@ function showEditProfileForm(id){
     showForm();
     $("#viewTitle").text("Modification");
     renderEditUserForm(id);
+}
+function showDeleteUser(User){
+    showForm();
+    $("#viewTitle").text("Effacer le compte");
+    console.log(User);
+    renderDeleteUserForm(User);
 }
 function showCreatePostForm() {
     showForm();
@@ -690,7 +694,7 @@ async function renderEditUserForm(id) {
     if (!Posts_API.error) {
        // let User = response.data;
         if ( response !== null)
-            renderFormProfile( response);
+            await renderFormProfile( response);
         else
             showError("Post introuvable!");
     } else {
@@ -700,6 +704,8 @@ async function renderEditUserForm(id) {
 }
 function renderDeleteUserForm(user) {
     if (user !== null) {
+        $("#form").empty();
+        $('#commit').hide();
         $("#form").append(`
             <div class="user" id="${user.Id}"> 
                 <div class="userContainer noselect">
@@ -712,19 +718,23 @@ function renderDeleteUserForm(user) {
                     </div>
                 </div>
             </div>
+            <div>
+            <p>Voulez-vous vraiment affacer votre compte?</p>
+            <input type="submit" value="Suprimer" id="deleteUser" class="delete_profile_btn btn btn-primary">
+            </br><br>
+            <input type="button" value="Annuler" id="cancel" class="login_btn btn btn-secondary">            
+            </div>
         `);
-        $('#commit').on("click", async function () {
+        $('#deleteUser').on("click", async function () {
             await Posts_API.removeUser(user.Id);
             if (Posts_API.error) {
                 console.log(Posts_API.currentHttpError)
                 showError("Une erreur est survenue!");
             }
-            hideForm();
-            showUsers();
+            await logout();
         });
         $('#cancel').on("click", async function () {
-            console.log("cancel");
-            showUsers();
+            showPosts();
         });
 
     } else {
@@ -854,68 +864,79 @@ function renderLoginProfil(message=null){
        // $("#errorMessage").text("Mot de passe incorrect").show();
             //showError("Une erreur est survenue! ", Posts_API.currentHttpError);
     });
-    $("#createAccountButton").on("click", function () {
-        renderFormProfile(); 
+    $("#createAccountButton").on("click", async function () {
+        await renderFormProfile(); 
     });
 }
 
-function renderFormProfile(User=null){
+async function renderFormProfile(User = null, message = null) {
     let create = User == null;
     if (create) User = newUser();
+    console.log(User);
     $("#viewTitle").text(create ? "Inscription" : "Modifier le profil");
     $("#form").empty();
     $('#commit').hide();
     $("#form").append(`
-        <form class="form" id ="createProfilForm">
-            <input type="hidden" name="Id" value="${User.Id}"/>
-            <input type="hidden" name="Created" value="${User.Created}"/>
+        <div class="messageContainer">
+            <div class="error-message" style="color: red;" id="errorMessage">${message ?? ""}</div>
+        </div>
+        <form class="form" id="createProfilForm">
+            <input type="hidden" name="Id" value="${User.Id}" />
+            <input type="hidden" name="Created" value="${User.Created}" />
             <fieldset>
-                <legend> Adress de courriel </legend>
-                <input id="Email" type="email"
+                <legend>Adresse de courriel</legend>
+                <input 
+                    id="Email" 
                     class="form-control Email"
                     name="Email"
                     placeholder="Courriel"
                     CustomErrorMessage="Ce courriel est déjà utilisé"
-                    value="${User.Email}"
-                    
-                />
+                    RequireMessage="Veuillez entrer un courriel"
+                    InvalidMessage="Le format du courriel est invalide"
+                    value="${User.Email}" />
                 </br>
-                <input type="email"
-                    class="form-control EmailVerification MatchedInput"
-                    name="Email"
-                    placeholder="Verification"
-                    CustomErrorMessage="Ce courriel ne correspond pas"
+                <input 
+                    class="form-control MatchedInput"
                     matchedInputId="Email"
-                />
+                    name="ConfirmEmail"
+                    id="ConfirmEmail"
+                    placeholder="Verification"
+                    required
+                    RequireMessage="Veuillez entrer un courrielss"
+                    CustomErrorMessage="Ce courriel ne correspond pas"
+                    InvalidMessage="Les courriels ne sont pas identiques"
+                    value="${User.Email} "/>
             </fieldset>
             <fieldset>
-                <legend> Mot de passe </legend>
-                <input type="password"
+                <legend>Mot de passe</legend>
+                <input 
+                    type="password"
                     class="form-control Password"
                     name="Password"
                     placeholder="Mot de passe"
                     value=""
                 />
                 </br>
-                <input type="password"
-                    class="form-control password"
-                    name="Password"
+                <input 
+                    type="password"
+                    class="form-control Password"
+                    name="ConfirmPassword"
                     placeholder="Verification"
-                    CustomErrorMessage="Les mots de passe ne corresponde pas"
+                    CustomErrorMessage="Les mots de passe ne correspondent pas"
                     matchedInputId="Password"
                 />
             </fieldset>
             <fieldset>
-                <legend> Nom </legend>
-                <input type="text"
+                <legend>Nom</legend>
+                <input 
+                    type="text"
                     class="form-control text"
                     name="Name"
-                    placeholder="Nom" 
-                    value="${User.Name}"
-                    />
+                    placeholder="Nom"
+                    value="${User.Name}" />
             </fieldset>
             <fieldset>
-                <legend> Avatar </legend>
+                <legend>Avatar</legend>
                 <div class='imageUploaderContainer'>
                     <div class='imageUploader' 
                         newImage='${create}' 
@@ -925,61 +946,66 @@ function renderFormProfile(User=null){
                     </div>
                 </div>
             </fieldset>
-            <input type="submit" value="Enregistrer" id="saveUser" class="login_btn btn btn-primary ">
+            <input type="submit" value="Enregistrer" id="saveUser" class="login_btn btn btn-primary">
             </br><br>
-            <input type="button" name ="button" value="Effacer le compte" id="deleteAccountButton" class="delete_user_btn btn btn-primary ">
-
+            <input type="button" name="button" value="Effacer le compte" id="deleteAccountButton" class="delete_user_btn btn btn-primary">
         </form>
     `);
     initImageUploaders();
-    if (create){
+    initFormValidation();
+    const serviceUrl = `${Posts_API.serverHost()}/accounts/conflict`;
+    addConflictValidation(serviceUrl, "Email", "saveUser");
+    if (create) {
         $("#deleteAccountButton").hide();
         $("#saveUser").show();
-        initFormValidation(); 
-    }
-    else{
+        
+    } /*else {
         $("#Email, #Password").one("input change", function () {
             console.log("Validation initialisée");
             initFormValidation();
         });
-    
-    }
-    const serviceUrl = `${Posts_API.serverHost()}/accounts/conflict`;
-    addConflictValidation(serviceUrl,"Email","saveUser");
+    }*/
+
     $('#createProfilForm').on("submit", async function (event) {
         event.preventDefault();
         let user = getFormData($("#createProfilForm"));
+        console.log(ùser)
         if (!user.Email || user.Email === "") {
-            user.Email = User.Email; 
+            user.Email = User.Email;
         }
+        delete user.ConfirmEmail;
+        delete user.ConfirmPassword;
+        if (user.Password === "************")
+            user.Password = '';
         let response;
+
         if (create) {
             response = await Posts_API.registerUserProfile(user);
         } else {
-            console.log("await modifty");
             response = await Posts_API.modifyUserProfile(user);
         }
         if (!Posts_API.error) {
-            console.log("changemnet enregisrer");
-            if(create){
-                let message="Votre compte a été créé. Veuillez prendre vos courriels pour récupérer votre code de vérification qui vous sera demandé lors de vottre prochaine connexion.";
-                renderLoginProfil(message); 
+            if (create) {
+                let message = "Votre compte a été créé. Veuillez vérifier vos courriels pour récupérer votre code de vérification qui vous sera demandé lors de votre prochaine connexion.";
+                renderLoginProfil(message);
+            } else {
+                let message = "Modifications enregistrées";
+                await renderFormProfile(user, message);
             }
-            else{
-                renderFormProfile(user);
-            }
-        }
-        else
+        } else {
             showError("Une erreur est survenue! ", Posts_API.currentHttpError);
+        }
     });
     $('#cancel').on("click", async function () {
         await showPosts();
     });
-    $("#deleteAccountButton").on("click", function () {
-        renderFormProfile(); 
+    $("#deleteAccountButton").on("click", async function () {
+        //await renderFormProfile();
+        //renderDeleteUserForm(User)
+        showDeleteUser(User)
     });
-    
 }
+
 
 //////////////////////// Forms rendering (POST) /////////////////////////////////////////////////////////////////
 
