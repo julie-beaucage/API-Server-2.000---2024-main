@@ -16,7 +16,6 @@ let currentTimeouID = undefined;
 let initialized = false;
 let timeBeforeRedirect = 5;
 let timeoutCallBack = () => {
-    console.log("Unauthorized access");
     Posts_API.logout();
     showLoginForm("Votre session est expirée. Veuillez vous reconnecter.");
 };
