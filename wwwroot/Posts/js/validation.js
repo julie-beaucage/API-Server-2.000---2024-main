@@ -107,16 +107,21 @@ function remoteValidation(url) {
     })
     return result;
 }
-async function ConflictTestRequest(serviceUrl, fieldName) {
-    let fieldControl = $('#' + fieldName);
-    let testConflictURL = serviceUrl + "?" + fieldName + "=" + fieldControl.val() + "&Id=" + $("#Id").val();
-    let result = await remoteValidation(testConflictURL);
-    if (result)
-        fieldControl[0].setCustomValidity(fieldControl.attr("CustomErrorMessage"));
-    else
-        fieldControl[0].setCustomValidity("");
-    fieldControl[0].reportValidity();
-    conflict = result;
+async function ConflictTestRequest(serviceUrl, fieldName, originalEmail) { 
+    let fieldControl = $('#' + fieldName); 
+    if (fieldControl.val() !== originalEmail) {
+         let testConflictURL = serviceUrl + "?" + fieldName + "=" + fieldControl.val() + "&Id=" + $("#Id").val(); 
+         let result = await remoteValidation(testConflictURL); 
+         if (result) 
+            fieldControl[0].setCustomValidity(fieldControl.attr("CustomErrorMessage")); 
+         else 
+            fieldControl[0].setCustomValidity(""); 
+        fieldControl[0].reportValidity(); conflict = result; 
+    } else { 
+        fieldControl[0].setCustomValidity(""); 
+        fieldControl[0].reportValidity(); 
+        conflict = false; 
+    } 
 }
 function DelayedConflictTestRequest(serviceUrl, fieldName) {
     clearTimeout(timer);
