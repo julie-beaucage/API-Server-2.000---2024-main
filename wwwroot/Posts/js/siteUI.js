@@ -876,6 +876,11 @@ function renderLoginProfil(message=null){
         let user = getFormData($("#loginProfilForm"));
         user = await Posts_API.login(user);
         if (!Posts_API.error) {
+            if (user.isBlocked) {
+                Posts_API.logout();
+                showLoginForm("Votre compte a été bloqué. Veuillez contacter l'administrateur.");
+                return;
+            }
             if(user.VerifyCode=="verified"){
                 timeout(timeoutTime);
                 loggedUserMenu();
